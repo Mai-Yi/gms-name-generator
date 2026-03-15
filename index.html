@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>冒险岛 GMS 中文名起名器</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #5D4E6D;
+      background: #F5E6F0;
+      background-image:
+        linear-gradient(180deg, rgba(248,231,243,0.55) 0%, rgba(243,229,245,0.5) 50%, rgba(232,245,233,0.55) 100%),
+        url('assets/cute-official-wallpapers-and-more-from-kms-v0-4zvm37ox5hz81.webp');
+      background-size: auto, cover;
+      background-position: 0 0, center;
+      background-attachment: fixed, fixed;
+    }
+    .page-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+      position: relative;
+      z-index: 1;
+    }
+    .banner {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, rgba(248,187,208,0.5) 0%, rgba(225,190,231,0.45) 50%, rgba(200,230,201,0.5) 100%);
+      background-image: url('assets/cute-official-wallpapers-and-more-from-kms-v0-lojqg6ox5hz81.webp');
+      background-size: cover;
+      background-position: center bottom;
+      border: 3px solid #B39DDB;
+      box-shadow:
+        0 0 0 1px rgba(179,157,219,0.4),
+        0 8px 32px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.6);
+      position: relative;
+    }
+    .banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(248,231,243,0.7) 0%, rgba(243,229,245,0.6) 100%);
+      pointer-events: none;
+    }
+    .banner-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .banner-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #4A148C;
+      text-shadow:
+        0 0 2px #fff,
+        0 0 4px #fff,
+        0 1px 2px rgba(0,0,0,0.4),
+        0 2px 6px rgba(0,0,0,0.3);
+      letter-spacing: 4px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.75);
+      border-radius: 8px;
+    }
+    section {
+      margin-bottom: 24px;
+      padding: 20px 22px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(248,231,243,0.95) 100%);
+      border: 2px solid #CE93D8;
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(206,147,216,0.3),
+        0 4px 16px rgba(0,0,0,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+      position: relative;
+    }
+    section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #F48FB1, #B39DDB, #80CBC4);
+      border-radius: 12px 12px 0 0;
+    }
+    section h2 {
+      font-size: 1.05rem;
+      margin: 0 0 12px 0;
+      color: #7B1FA2;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 18px;
+      border: 2px solid #E1BEE7;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.95);
+      color: #4A148C;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #B39DDB;
+      box-shadow: 0 0 0 3px rgba(179,157,219,0.3);
+    }
+    input[type="text"]::placeholder {
+      color: #B39DDB;
+    }
+    .hint {
+      font-size: 12px;
+      color: #7B1FA2;
+      margin-top: 8px;
+      opacity: 0.9;
+    }
+    .remark {
+      display: block;
+      font-size: 12px;
+      color: #7B1FA2;
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(206,147,216,0.15);
+      border-radius: 6px;
+      border-left: 3px solid #B39DDB;
+      line-height: 1.5;
+      opacity: 0.95;
+    }
+    .hint-notice {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      color: #6A1B9A;
+      background: rgba(248,187,208,0.4);
+      border: 1px solid #F48FB1;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .result-box {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.95);
+      border: 2px solid #F48FB1;
+      border-radius: 8px;
+      font-family: Consolas, monospace;
+      font-size: 22px;
+      letter-spacing: 3px;
+      word-break: break-all;
+      min-height: 52px;
+      color: #6A1B9A;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .char-unit {
+      padding: 6px 12px;
+      background: rgba(248,187,208,0.3);
+      border: 1px solid #F48FB1;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .char-unit:hover {
+      background: rgba(248,187,208,0.5);
+      border-color: #EC407A;
+      transform: scale(1.05);
+    }
+    .input-validation {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    .input-validation .char {
+      font-size: 18px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    .input-validation .char.invalid {
+      color: #C2185B;
+      background: rgba(248,187,208,0.4);
+      border: 1px solid #F48FB1;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 12px;
+      margin-right: 10px;
+      font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(180deg, #FF6B6B 0%, #e85555 100%);
+      color: #fff;
+      border: 2px solid #ff8888;
+      box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 16px rgba(255,107,107,0.5); }
+    .btn-secondary {
+      background: linear-gradient(180deg, #B39DDB 0%, #9575CD 100%);
+      color: #fff;
+      border: 2px solid #CE93D8;
+      box-shadow: 0 4px 12px rgba(179,157,219,0.4);
+    }
+    .btn-secondary:hover { box-shadow: 0 6px 16px rgba(179,157,219,0.5); }
+    .py-input-wrap {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .py-input-wrap input { flex: 1; }
+    .chars-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .char-btn {
+      padding: 8px 12px;
+      font-size: 16px;
+      background: rgba(255,255,255,0.9);
+      color: #7B1FA2;
+      border: 2px solid #CE93D8;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .char-btn:hover {
+      background: rgba(248,187,208,0.4);
+      border-color: #B39DDB;
+      color: #4A148C;
+      transform: scale(1.05);
+    }
+    .load-err {
+      color: #C2185B;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .copy-ok {
+      color: #7B1FA2;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .footer-deco {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid rgba(206,147,216,0.5);
+    }
+    .footer-deco .sub {
+      color: #7B1FA2;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .float-deco {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 70px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .float-deco.left { left: 0; }
+    .float-deco.right { right: 0; }
+    .float-deco img {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      opacity: 0.75;
+      animation: float 4s ease-in-out infinite;
+    }
+    .float-deco img:nth-child(1) { top: 18%; left: 8px; animation-delay: 0s; }
+    .float-deco img:nth-child(2) { top: 45%; left: 4px; animation-delay: 1.2s; }
+    .float-deco img:nth-child(3) { top: 72%; left: 12px; animation-delay: 2.4s; }
+    .float-deco.right img:nth-child(1) { top: 22%; right: 8px; left: auto; animation-delay: 0.6s; }
+    .float-deco.right img:nth-child(2) { top: 52%; right: 4px; left: auto; animation-delay: 1.8s; }
+    .float-deco.right img:nth-child(3) { top: 78%; right: 10px; left: auto; animation-delay: 3s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @media (max-width: 680px) {
+      .float-deco { display: none; }
+    }
+    .help-trigger {
+      font-size: 12px;
+      color: #7B1FA2;
+      background: transparent;
+      border: 1px solid #CE93D8;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .help-trigger:hover {
+      background: rgba(248,187,208,0.5);
+      border-color: #B39DDB;
+    }
+    .help-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .help-overlay.show { display: flex; }
+    .help-modal {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,231,243,0.98) 100%);
+      border: 2px solid #CE93D8;
+      border-radius: 12px;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .help-modal h3 {
+      margin: 0;
+      padding: 16px 20px;
+      font-size: 1.1rem;
+      color: #7B1FA2;
+      border-bottom: 1px solid rgba(206,147,216,0.5);
+    }
+    .help-modal .help-body {
+      padding: 16px 20px 20px;
+    }
+    .help-modal .help-body p {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #5D4E6D;
+      line-height: 1.5;
+    }
+    .help-modal .help-body img {
+      display: block;
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(206,147,216,0.5);
+      margin-top: 12px;
+    }
+    .help-close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #7B1FA2;
+      line-height: 1;
+    }
+    .help-close:hover { color: #4A148C; }
+  </style>
+</head>
+<body>
+  <div class="float-deco left">
+    <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-3.png" alt="" aria-hidden="true">
+  </div>
+  <div class="float-deco right">
+    <img src="assets/piaofu-4.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
+  </div>
+  <div class="page-wrap">
+    <div class="banner" role="img" aria-label="冒险岛">
+      <div class="banner-inner">
+        <span class="banner-title">冒险岛 GMS 中文名起名器</span>
+      </div>
+    </div>
+  <section>
+    <h2>名字生成 <button type="button" class="help-trigger" id="helpTrigger">如何输入游戏</button></h2>
+    <span class="hint-notice">全程请切换到英文输入法</span>
+    <p class="hint">输入中文名（最多 6 个字），生成游戏内使用的字符。点击每个字符单元可逐字复制。</p>
+    <span class="remark">备注：仅当系统 Unicode 识别为中文时才会显示中文名；其他玩家（如海外玩家）看到的是我们输入游戏中的原始字符，不会出现满屏中文 ID 的情况。</span>
+    <input type="text" id="nameInput" maxlength="6" placeholder="输入 1～6 个汉字">
+    <div class="input-validation" id="inputValidation" aria-live="polite"></div>
+    <input type="text" id="imeHelper" lang="en" inputmode="latin" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+    <div class="result-box" id="resultBox"></div>
+    <span id="copyTip" class="copy-ok"></span>
+  </section>
+
+  <section>
+    <h2>拼音查询</h2>
+    <p class="hint">输入拼音（如 mao、xian、dao）查找可选汉字，点击汉字可追加到上方输入框。</p>
+    <div class="py-input-wrap">
+      <input type="text" id="pyInput" placeholder="输入拼音" autocomplete="off">
+      <button type="button" class="btn btn-secondary" id="btnPy">查询</button>
+    </div>
+    <div id="loadErr" class="load-err"></div>
+    <div class="chars-wrap" id="charsWrap"></div>
+  </section>
+
+  <script>
+    (function () {
+      var charToGame = {};
+      var pinyinChars = {};
+      var resultBox = document.getElementById('resultBox');
+      var nameInput = document.getElementById('nameInput');
+      var pyInput = document.getElementById('pyInput');
+      var charsWrap = document.getElementById('charsWrap');
+      var loadErr = document.getElementById('loadErr');
+      var copyTip = document.getElementById('copyTip');
+
+      function loadData() {
+        var base = window.location.pathname.replace(/\/[^/]*$/, '') || '.';
+        var opts = { cache: 'no-store' };
+        return Promise.all([
+          fetch(base + '/char_to_game.json', opts).then(function (r) { return r.ok ? r.json() : {}; }),
+          fetch(base + '/pinyin_chars.json', opts).then(function (r) { return r.ok ? r.json() : {}; })
+        ]).then(function (arr) {
+          charToGame = arr[0] || {};
+          pinyinChars = arr[1] || {};
+          if (Object.keys(charToGame).length === 0) {
+            loadErr.textContent = '未加载到字符映射。请通过本地服务器打开本页（例如在项目目录执行：py -3 -m http.server 8000，然后访问 http://localhost:8000）';
+          } else {
+            loadErr.textContent = '';
+          }
+        }).catch(function () {
+          loadErr.textContent = '数据加载失败。请通过本地服务器打开本页。';
+        });
+      }
+
+      var resultChars = [];
+      var inputValidation = document.getElementById('inputValidation');
+
+      function updateInputValidation() {
+        var raw = nameInput.value || '';
+        inputValidation.innerHTML = '';
+        for (var i = 0; i < raw.length && i < 6; i++) {
+          var c = raw[i];
+          var span = document.createElement('span');
+          span.className = 'char' + (charToGame[c] != null ? '' : ' invalid');
+          span.textContent = c;
+          span.title = charToGame[c] != null ? '' : '该字符无映射，仅支持汉字';
+          inputValidation.appendChild(span);
+        }
+      }
+
+      function generate() {
+        var raw = (nameInput.value || '').trim();
+        resultBox.innerHTML = '';
+        resultChars = [];
+        updateInputValidation();
+        if (!raw) return;
+        var out = '';
+        for (var i = 0; i < raw.length && i < 6; i++) {
+          var c = raw[i];
+          if (charToGame[c] != null) out += charToGame[c];
+        }
+        resultChars = Array.from(out);
+        for (var j = 0; j < out.length; j++) {
+          var ch = out[j];
+          var span = document.createElement('span');
+          span.className = 'char-unit';
+          span.textContent = ch;
+          span.title = '点击复制';
+          span.addEventListener('click', (function (txt) {
+            return function () { copyChar(txt); };
+          })(ch));
+          resultBox.appendChild(span);
+        }
+      }
+
+      function copyChar(txt) {
+        if (!txt) return;
+        var inp = document.getElementById('nameInput');
+        var helper = document.getElementById('imeHelper');
+        if (inp) inp.blur();
+        if (helper) { helper.focus(); helper.blur(); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(txt).then(function () {
+            copyTip.textContent = '已复制';
+            setTimeout(function () { copyTip.textContent = ''; }, 2500);
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = txt;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            copyTip.textContent = '已复制';
+            setTimeout(function () { copyTip.textContent = ''; }, 2500);
+          } finally {
+            document.body.removeChild(ta);
+          }
+        }
+      }
+
+      function searchPinyin() {
+        var key = (pyInput.value || '').trim().toLowerCase().replace(/[：:]\s*$/, '');
+        charsWrap.innerHTML = '';
+        if (!key) return;
+        var list = pinyinChars[key];
+        if (!list || list.length === 0) {
+          charsWrap.innerHTML = '<span class="hint">未找到该拼音或无对应汉字</span>';
+          return;
+        }
+        var added = 0;
+        list.forEach(function (c) {
+          if (!charToGame[c]) return;
+          added++;
+          var btn = document.createElement('button');
+          btn.className = 'char-btn';
+          btn.textContent = c;
+          btn.type = 'button';
+          btn.addEventListener('click', function () {
+            var cur = nameInput.value || '';
+            if (cur.length < 6) nameInput.value = cur + c;
+            generate();
+          });
+          charsWrap.appendChild(btn);
+        });
+        if (added === 0) {
+          charsWrap.innerHTML = '<span class="hint">未找到该拼音或无对应汉字</span>';
+        }
+      }
+
+      document.getElementById('btnPy').addEventListener('click', searchPinyin);
+      pyInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); searchPinyin(); }
+      });
+      nameInput.addEventListener('input', function () { updateInputValidation(); generate(); });
+      nameInput.addEventListener('keyup', function () { updateInputValidation(); generate(); });
+
+      loadData().then(function () { updateInputValidation(); generate(); });
+    })();
+  </script>
+    <div class="footer-deco">
+      <span class="sub">冒险岛 MapleStory</span>
+    </div>
+  </div>
+  <div class="help-overlay" id="helpOverlay">
+    <div class="help-modal">
+      <h3>如何输入游戏 <span class="help-close" id="helpClose" aria-label="关闭">&times;</span></h3>
+      <div class="help-body">
+        <p>1. 在本页生成中文名对应的游戏字符，点击每个字符逐字复制。</p>
+        <p>2. 进入游戏角色创建界面，切换到英文输入法。</p>
+        <p>3. 在角色名称输入框中，逐字粘贴已复制的字符。</p>
+        <img src="assets/example.gif" alt="游戏内输入角色名称示例">
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var overlay = document.getElementById('helpOverlay');
+      var trigger = document.getElementById('helpTrigger');
+      var closeBtn = document.getElementById('helpClose');
+      function openHelp() { overlay.classList.add('show'); }
+      function closeHelp() { overlay.classList.remove('show'); }
+      trigger.addEventListener('click', openHelp);
+      closeBtn.addEventListener('click', closeHelp);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeHelp();
+      });
+    })();
+  </script>
+</body>
+</html>
