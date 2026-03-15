@@ -35,6 +35,3 @@ for c in all_chars:
 
 with open('d:/Name/char_to_game.json', 'w', encoding='utf-8') as f:
     json.dump(char_to_game, f, ensure_ascii=False)
-
-with open('d:/Name/build_log.txt', 'w', encoding='utf-8') as f:
-    f.write('char_to_game count: %d\n' % len(char_to_game))
