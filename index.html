@@ -200,6 +200,11 @@
       background: rgba(248,187,208,0.4);
       border: 1px solid #F48FB1;
     }
+    .input-validation .char.space {
+      background: rgba(179,157,219,0.3);
+      border: 1px dashed #B39DDB;
+      min-width: 1em;
+    }
     .btn {
       padding: 10px 20px;
       font-size: 14px;
@@ -394,9 +399,12 @@
   <section>
     <h2>名字生成 <button type="button" class="help-trigger" id="helpTrigger">如何输入游戏</button></h2>
     <span class="hint-notice">全程请切换到英文输入法</span>
-    <p class="hint">输入中文名（最多 6 个字），生成游戏内使用的字符。点击每个字符单元可逐字复制。</p>
+    <p class="hint">输入中文名（最多 6 个字），生成游戏内使用的字符。可点击「添加空格」插入全角空格（占 1 位）。点击每个字符单元可逐字复制。</p>
     <span class="remark">备注：仅当系统 Unicode 识别为中文时才会显示中文名；其他玩家（如海外玩家）看到的是我们输入游戏中的原始字符，不会出现满屏中文 ID 的情况。</span>
-    <input type="text" id="nameInput" maxlength="6" placeholder="输入 1～6 个汉字">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="nameInput" maxlength="6" placeholder="输入 1～6 个汉字" style="flex:1;min-width:0;">
+      <button type="button" class="btn btn-secondary" id="btnAddSpace" style="margin-top:0;">添加空格</button>
+    </div>
     <div class="input-validation" id="inputValidation" aria-live="polite"></div>
     <input type="text" id="imeHelper" lang="en" inputmode="latin" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
     <div class="result-box" id="resultBox"></div>
@@ -446,22 +454,26 @@
 
       var resultChars = [];
       var inputValidation = document.getElementById('inputValidation');
+      var FULL_SPACE = '\u3000';
+      var FULL_SPACE_GAME = '\u00F8\u00F8';
 
       function updateInputValidation() {
         var raw = nameInput.value || '';
         inputValidation.innerHTML = '';
         for (var i = 0; i < raw.length && i < 6; i++) {
           var c = raw[i];
+          var isSpace = c === FULL_SPACE;
+          var valid = isSpace || charToGame[c] != null;
           var span = document.createElement('span');
-          span.className = 'char' + (charToGame[c] != null ? '' : ' invalid');
+          span.className = 'char' + (valid ? '' : ' invalid') + (isSpace ? ' space' : '');
           span.textContent = c;
-          span.title = charToGame[c] != null ? '' : '该字符无映射，仅支持汉字';
+          span.title = isSpace ? '全角空格' : (valid ? '' : '该字符无映射，仅支持汉字');
           inputValidation.appendChild(span);
         }
       }
 
       function generate() {
-        var raw = (nameInput.value || '').trim();
+        var raw = (nameInput.value || '').replace(/^[\t\n\r \u00A0]+|[\t\n\r \u00A0]+$/g, '');
         resultBox.innerHTML = '';
         resultChars = [];
         updateInputValidation();
@@ -469,7 +481,8 @@
         var out = '';
         for (var i = 0; i < raw.length && i < 6; i++) {
           var c = raw[i];
-          if (charToGame[c] != null) out += charToGame[c];
+          if (c === FULL_SPACE) out += FULL_SPACE_GAME;
+          else if (charToGame[c] != null) out += charToGame[c];
         }
         resultChars = Array.from(out);
         for (var j = 0; j < out.length; j++) {
@@ -542,6 +555,12 @@
         }
       }
 
+      document.getElementById('btnAddSpace').addEventListener('click', function () {
+        var cur = nameInput.value || '';
+        if (cur.length < 6) nameInput.value = cur + FULL_SPACE;
+        updateInputValidation();
+        generate();
+      });
       document.getElementById('btnPy').addEventListener('click', searchPinyin);
       pyInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); searchPinyin(); }
