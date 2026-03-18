@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GMS 搬蛋小助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="float-deco left">
+    <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-3.png" alt="" aria-hidden="true">
+  </div>
+  <div class="float-deco right">
+    <img src="assets/piaofu-4.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
+    <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
+  </div>
+  <div class="page-wrap page-wrap-crystal">
+    <div class="banner" role="img" aria-label="冒险岛">
+      <div class="banner-inner">
+        <span class="banner-title">GMS 搬蛋小助手</span>
+      </div>
+    </div>
+    <p class="subtitle">选择每个角色每周击杀的 Boss难度以及参与人数，每周所有角色合计最多 180 个 Boss 结晶</p>
+    <section class="char-section">
+      <div class="char-header">
+        <span class="char-name">角色列表</span>
+        <div class="add-char-wrap">
+          <input type="text" id="charRemarkInput" placeholder="角色备注（可选）" class="char-remark-input" maxlength="20">
+          <button class="add-char" id="addChar">添加角色</button>
+        </div>
+      </div>
+      <div id="charList" class="char-list-grid"></div>
+      <div class="total-all" id="totalAll">全部角色 Meso 总计: 0</div>
+    </section>
+    <section>
+      <div class="char-tabs-wrap">
+        <span class="batch-hint" id="batchHint">按住 Ctrl 点击角色可多选批量修改</span>
+        <div class="char-tabs" id="charTabs"></div>
+      </div>
+      <div class="summary">
+        <div>
+          <span class="summary-label" id="selectedLabel">当前角色已选: </span>
+          <span class="summary-count" id="selectedCount">0</span> / 14
+        </div>
+        <div>
+          <span class="summary-label">当前角色预计 Meso: </span>
+          <span class="summary-value" id="totalMeso">0</span>
+        </div>
+        <div>
+          <span class="summary-label">每周已选合计: </span>
+          <span class="summary-count" id="weeklyTotalCount">0</span> / 180
+        </div>
+        <div class="auto-calc-wrap">
+          <label class="max-boss-label">最高等级 Boss:</label>
+          <div id="maxBossDropdown" class="max-boss-dropdown">
+            <button type="button" class="max-boss-trigger" id="maxBossTrigger">
+              <span class="max-boss-trigger-content">-- 未设置 --</span>
+            </button>
+            <div id="maxBossList" class="max-boss-list" style="display:none;"></div>
+          </div>
+          <button id="autoCalcBtn" class="auto-calc-btn">自动计算</button>
+        </div>
+      </div>
+      <div id="weeklyLimitWarn" class="limit-warn" style="display:none;"></div>
+      <div id="categories"></div>
+    </section>
+    <aside id="optimizeSidebar" class="optimize-sidebar" style="display:none;">
+      <div class="optimize-sidebar-inner">
+        <div id="powerOrderPanel" class="power-order-panel">
+          <div class="power-order-title">战力排序（拖拽调整，从大到小）</div>
+          <div id="powerOrderList" class="power-order-list"></div>
+        </div>
+        <div id="optimizeSuggest" class="optimize-suggest"></div>
+      </div>
+    </aside>
+    <button id="backToTop" class="back-to-top" title="返回上方">
+      <span class="back-to-top-img">
+        <img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt="">
+      </span>
+      <span class="back-to-top-text">返回上方</span>
+    </button>
+    <div class="footer-deco">
+      <span class="sub">GMSK 伊桃</span>
+      <span class="nav-links"> | <a href="index.html">中文名起名器</a></span>
+    </div>
+  </div>
+
+  <script id="boss-data" type="application/json">
+{"prices":{"Zakum":{"EASY":1000000,"NORMAL":3062500,"CHAOS":81000000},"Magnus":{"EASY":3610000,"NORMAL":12960000,"HARD":95062500},"Hilla":{"NORMAL":4000000,"HARD":56250000},"Papulatus":{"EASY":3422500,"NORMAL":13322500,"CHAOS":132250000},"Pierre":{"NORMAL":4840000,"CHAOS":81000000},"Von Bon":{"NORMAL":4840000,"CHAOS":81000000},"Crimson Queen":{"NORMAL":4840000,"CHAOS":81000000},"Vellum":{"NORMAL":4840000,"CHAOS":105062500},"Pink Bean":{"NORMAL":7022500,"CHAOS":64000000},"Cygnus":{"EASY":45562500,"NORMAL":72250000},"Lotus":{"NORMAL":162562500,"HARD":444675000,"EXTREME":1397500000},"Damien":{"NORMAL":169000000,"HARD":421875000},"Guardian Angel Slime":{"NORMAL":231673500,"CHAOS":600578125},"Lucid":{"EASY":237009375,"NORMAL":253828125,"HARD":504000000},"Will":{"EASY":246744750,"NORMAL":279075000,"HARD":621810000},"Gloom":{"NORMAL":297675000,"CHAOS":563945000},"Verus Hilla":{"NORMAL":581880000,"HARD":762105000},"Darknell":{"NORMAL":316875000,"HARD":667920000},"Chosen Seren":{"NORMAL":889021875,"HARD":1096562500,"EXTREME":4235000000},"Kalos the Guardian":{"EASY":937500000,"NORMAL":1300000000,"CHAOS":2600000000,"EXTREME":5200000000},"Kaling":{"EASY":1031250000,"NORMAL":1506500000,"HARD":2990000000,"EXTREME":6026000000},"Limbo":{"NORMAL":2100000000,"HARD":3745000000},"Baldrix":{"NORMAL":2800000000,"HARD":4200000000},"First Adversary":{"EASY":985000000,"NORMAL":1365000000,"HARD":2940000000,"EXTREME":5880000000},"Princess No":{"NORMAL":81000000},"Akechi Mitsuhide":{"NORMAL":144000000},"Black Mage":{"HARD":4500000000,"EXTREME":18000000000}},"categories":{"Weekly":["Zakum","Magnus","Hilla","Papulatus","Pierre","Von Bon","Crimson Queen","Vellum","Pink Bean","Cygnus","Lotus","Damien","Guardian Angel Slime","Lucid","Will","Gloom","Verus Hilla","Darknell","Chosen Seren","Kalos the Guardian","Kaling","Limbo","Baldrix","First Adversary","Princess No","Akechi Mitsuhide"],"Monthly":["Black Mage"]}}
+  </script>
+  <script>
+    const MAX_BOSS_WEEKLY_TOTAL = 180;
+    const STORAGE_KEY = 'gms-boss-crystal-data';
+    let bossData = null;
+    let characters = [{ id: 1, name: '角色 1', maxBoss: null, selections: {} }];
+    let selectedCharIndices = [0];
+    let characterPowerOrder = [];
+
+    function getCharTotal(i) {
+      const ch = characters[i];
+      if (!ch) return 0;
+      return Object.entries(ch.selections || {}).reduce((s, [b, sel]) => {
+        const n = normSel(sel);
+        return s + (n ? getMeso(b, n.diff, n.people) : 0);
+      }, 0);
+    }
+
+    function ensurePowerOrder() {
+      const valid = new Set(characters.map((_, i) => i));
+      characterPowerOrder = characterPowerOrder.filter(i => valid.has(i));
+      const missing = characters.map((_, i) => i).filter(i => !characterPowerOrder.includes(i));
+      characterPowerOrder = characterPowerOrder.concat(missing.sort((a, b) => getCharTotal(b) - getCharTotal(a)));
+    }
+
+    function onCharacterRemoved(removedIdx) {
+      characterPowerOrder = characterPowerOrder
+        .filter(i => i !== removedIdx)
+        .map(i => i > removedIdx ? i - 1 : i);
+    }
+
+    function onCharacterAdded() {
+      characterPowerOrder.push(characters.length - 1);
+    }
+
+    function getPowerRank(charIdx) {
+      const i = characterPowerOrder.indexOf(charIdx);
+      return i >= 0 ? i : characterPowerOrder.length;
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          characters,
+          selectedCharIndices,
+          characterPowerOrder
+        }));
+      } catch (e) {}
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function loadData() {
+      const el = document.getElementById('boss-data');
+      bossData = el ? JSON.parse(el.textContent) : {};
+      const saved = loadFromStorage();
+      if (saved?.characters?.length) {
+        characters = saved.characters;
+        characters.forEach(ch => { if (!ch.hasOwnProperty('maxBoss')) ch.maxBoss = null; });
+        selectedCharIndices = (saved.selectedCharIndices || []).filter(i => i >= 0 && i < characters.length);
+        if (selectedCharIndices.length === 0) selectedCharIndices = [0];
+        characterPowerOrder = (saved.characterPowerOrder || []).filter(i => i >= 0 && i < characters.length);
+      }
+      ensurePowerOrder();
+      render();
+    }
+
+    function formatMeso(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+      return String(n);
+    }
+
+    function getMeso(boss, diff, people) {
+      if (!bossData?.prices[boss]) return 0;
+      const p = bossData.prices[boss][diff];
+      const base = typeof p === 'number' ? p : 0;
+      return people && people > 0 ? Math.floor(base / people) : base;
+    }
+
+    function getMaxPeople(boss, diff) {
+      if (boss === 'First Adversary' || boss === 'Baldrix' || boss === 'Limbo') return 3;
+      if (boss === 'Lotus' && diff === 'EXTREME') return 2;
+      return 6;
+    }
+
+    function getDefaultPeople(boss, diff) {
+      if (boss === 'Kalos the Guardian' && (diff === 'CHAOS' || diff === 'EXTREME')) return 6;
+      if (boss === 'Kaling') return 6;
+      if (boss === 'Limbo' || boss === 'Baldrix' || boss === 'First Adversary') return 3;
+      return 1;
+    }
+
+    function getDiffBadgeHtml(diff) {
+      return `<span class="diff-badge ${diff}">${diff}</span>`;
+    }
+
+    function normSel(sel) {
+      if (!sel) return null;
+      if (typeof sel === 'string') return { diff: sel, people: 1 };
+      return { diff: sel.diff, people: sel.people || 1 };
+    }
+
+    function getBaseMeso(boss, diff) {
+      if (!bossData?.prices[boss]) return 0;
+      const p = bossData.prices[boss][diff];
+      return typeof p === 'number' ? p : 0;
+    }
+
+    const MAX_BOSS_MESO_MIN = 95062500;
+    const MAX_BOSS_MESO_MAX = 762105000;
+
+    function getAllBossOptions() {
+      const opts = [];
+      for (const boss of Object.keys(bossData?.prices || {})) {
+        for (const diff of Object.keys(bossData.prices[boss] || {})) {
+          const meso = getBaseMeso(boss, diff);
+          opts.push({ boss, diff, meso });
+        }
+      }
+      return opts.sort((a, b) => a.meso - b.meso);
+    }
+
+    function getMaxBossOptionsForSelect() {
+      return getAllBossOptions().filter(o => o.meso >= MAX_BOSS_MESO_MIN && o.meso <= MAX_BOSS_MESO_MAX);
+    }
+
+    const BOSS_IMAGE_MAP = {
+      'Zakum': 'Maple_Guide_-_Zakum.png',
+      'Magnus': 'Maple_Guide_-_Magnus.png',
+      'Hilla': 'Maple_Guide_-_Hilla.png',
+      'Papulatus': 'Maple_Guide_-_Papulatus.png',
+      'Pierre': 'Maple_Guide_-_Pierre.png',
+      'Von Bon': 'Maple_Guide_-_Von_Bon.png',
+      'Crimson Queen': 'Maple_Guide_-_Crimson_Queen.png',
+      'Vellum': 'Maple_Guide_-_Vellum.png',
+      'Pink Bean': 'Maple_Guide_-_Pink_Bean.png',
+      'Cygnus': 'Maple_Guide_-_Cygnus.png',
+      'Lotus': 'Maple_Guide_-_Lotus.png',
+      'Damien': 'Maple_Guide_-_Damien.png',
+      'Guardian Angel Slime': 'Maple_Guide_-_Guardian_Angel_Slime.png',
+      'Lucid': 'Maple_Guide_-_Lucid.png',
+      'Will': 'Maple_Guide_-_Will.png',
+      'Gloom': 'Maple_Guide_-_Giant_Monster_Gloom.png',
+      'Verus Hilla': 'Maple_Guide_-_Verus_Hilla.png',
+      'Darknell': 'Maple_Guide_-_Guard_Captain_Darknell.png',
+      'Chosen Seren': 'Maple_Guide_-_Chosen_Seren.png',
+      'Kalos the Guardian': 'Maple_Guide_-_Kalos_the_Guardian.png',
+      'Kaling': 'Maple_Guide_-_Kaling.png',
+      'Limbo': 'Maple_Guide_-_Limbo.png',
+      'Baldrix': 'Maple_Guide_-_Baldrix.png',
+      'First Adversary': 'Maple_Guide_-_First_Adversary.png',
+      'Princess No': 'Maple_Guide_-_Princess_No.png',
+      'Akechi Mitsuhide': 'Maple_Guide_-_Akechi_Mitsuhide.png',
+      'Black Mage': 'Maple_Guide_-_Black_Mage.png'
+    };
+
+    function getBossImagePath(boss) {
+      const fn = BOSS_IMAGE_MAP[boss];
+      return fn ? 'assets/bosses/' + fn : null;
+    }
+
+    function renderCharTabs() {
+      const tabs = document.getElementById('charTabs');
+      tabs.innerHTML = characters.map((ch, i) => {
+        const t = Object.entries(ch.selections || {}).reduce((s, [b, sel]) => {
+          const n = normSel(sel);
+          return s + (n ? getMeso(b, n.diff, n.people) : 0);
+        }, 0);
+        const isSelected = selectedCharIndices.includes(i);
+        return `<button class="char-tab ${isSelected ? 'active' : ''}" data-idx="${i}">${ch.name} (${formatMeso(t)})</button>`;
+      }).join('');
+      const hint = document.getElementById('batchHint');
+      tabs.querySelectorAll('.char-tab').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const i = parseInt(btn.dataset.idx, 10);
+          if (e.ctrlKey || e.metaKey) {
+            const idx = selectedCharIndices.indexOf(i);
+            if (idx >= 0) {
+              if (selectedCharIndices.length > 1) selectedCharIndices.splice(idx, 1);
+            } else {
+              selectedCharIndices.push(i);
+              selectedCharIndices.sort((a, b) => a - b);
+            }
+          } else {
+            selectedCharIndices = [i];
+          }
+          if (hint) hint.textContent = selectedCharIndices.length > 1 ? `已选 ${selectedCharIndices.length} 个角色，修改将同时应用` : '按住 Ctrl 点击角色可多选批量修改';
+          renderCharTabs();
+          renderBossGrids();
+          updateSummary();
+        });
+      });
+    }
+
+    function render() {
+      renderCharTabs();
+      const cat = document.getElementById('categories');
+      cat.innerHTML = '';
+      const allBosses = [...new Set([
+        ...(bossData.categories.Weekly || []),
+        ...(bossData.categories.Monthly || [])
+      ])];
+      const byCat = {};
+      for (const b of allBosses) {
+        for (const [c, list] of Object.entries(bossData.categories)) {
+          if (list.includes(b)) {
+            if (!byCat[c]) byCat[c] = [];
+            if (!byCat[c].includes(b)) byCat[c].push(b);
+          }
+        }
+      }
+      const order = ['Weekly', 'Monthly'];
+      for (const c of order) {
+        if (!byCat[c]) continue;
+        const div = document.createElement('div');
+        div.className = 'category';
+        div.innerHTML = `<div class="category-title">${c}</div><div class="boss-grid" id="grid-${c}"></div>`;
+        cat.appendChild(div);
+        const grid = div.querySelector(`#grid-${c}`);
+        for (const boss of byCat[c]) {
+          const prices = bossData.prices[boss] || {};
+          const diffs = Object.keys(prices);
+          if (diffs.length === 0) continue;
+          const row = document.createElement('div');
+          row.className = 'boss-row';
+          row.dataset.boss = boss;
+          const diffHtml = diffs.map(d =>
+            `<button class="diff-btn ${d}" data-diff="${d}">${d}</button>`
+          ).join('');
+          const bossImg = getBossImagePath(boss);
+          const bossImgHtml = bossImg
+            ? `<img src="${bossImg}" alt="" class="boss-thumb">`
+            : '';
+          row.innerHTML = `
+            <span class="boss-cell">${bossImgHtml}<span class="boss-name">${boss}</span></span>
+            <div class="difficulty-group">${diffHtml}</div>
+            <select class="people-select" data-boss="${boss}"></select>
+            <div class="lock-toggle" data-boss="${boss}" role="button" tabindex="0" title="锁定后自动计算不会覆盖">
+              <span class="lock-toggle-slider">
+                <svg class="lock-icon lock-closed" viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 1 1 8 0v4M8 11H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2V11"/></svg>
+                <svg class="lock-icon lock-open" viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 1 1 8 0M8 11h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2"/></svg>
+              </span>
+              <span class="lock-toggle-label lock-label">LOCK</span>
+              <span class="lock-toggle-label unlock-label">UNLOCK</span>
+            </div>
+            <span class="boss-meso">0</span>
+          `;
+          grid.appendChild(row);
+          diffs.forEach(d => {
+            const btn = row.querySelector(`[data-diff="${d}"]`);
+            btn.addEventListener('click', () => {
+              const firstCh = characters[selectedCharIndices[0]];
+              const cur = normSel(firstCh?.selections[boss]);
+              const newDiff = (cur && cur.diff === d) ? null : d;
+              const maxP = newDiff ? getMaxPeople(boss, newDiff) : 6;
+              const newPeople = cur ? Math.min(cur.people, maxP) : (newDiff ? getDefaultPeople(boss, newDiff) : 1);
+              selectedCharIndices.forEach(i => {
+                const ch = characters[i];
+                const prev = ch.selections[boss];
+                if (newDiff) {
+                  ch.selections[boss] = { diff: newDiff, people: newPeople, locked: prev?.locked };
+                } else {
+                  delete ch.selections[boss];
+                }
+              });
+              updateRowState(row, boss);
+              renderCharTabs();
+              updateSummary();
+            });
+          });
+          const peopleSelect = row.querySelector('.people-select');
+          if (peopleSelect) {
+            peopleSelect.addEventListener('change', (e) => {
+              const firstCh = characters[selectedCharIndices[0]];
+              const cur = normSel(firstCh?.selections[boss]);
+              if (!cur) return;
+              const p = parseInt(e.target.value, 10);
+              selectedCharIndices.forEach(i => {
+                if (characters[i].selections[boss]) {
+                  const sel = characters[i].selections[boss];
+                  characters[i].selections[boss] = { diff: cur.diff, people: p, locked: sel.locked };
+                }
+              });
+              updateRowState(row, boss);
+              renderCharTabs();
+              updateSummary();
+            });
+          });
+          const lockToggle = row.querySelector('.lock-toggle');
+          if (lockToggle) {
+            const doToggle = () => {
+              const firstCh = characters[selectedCharIndices[0]];
+              const cur = normSel(firstCh?.selections[boss]);
+              if (!cur) return;
+              selectedCharIndices.forEach(i => {
+                if (characters[i].selections[boss]) {
+                  const sel = characters[i].selections[boss];
+                  characters[i].selections[boss] = { ...sel, locked: !sel.locked };
+                }
+              });
+              updateRowState(row, boss);
+              renderCharTabs();
+              updateSummary();
+            };
+            lockToggle.addEventListener('click', (e) => { e.stopPropagation(); doToggle(); });
+            lockToggle.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doToggle(); } });
+          }
+          row.dataset.boss = boss;
+        }
+      }
+      renderBossGrids();
+      renderChars();
+      updateSummary();
+    }
+
+    function renderBossGrids() {
+      document.querySelectorAll('.boss-row').forEach(row => {
+        const boss = row.dataset.boss;
+        if (boss) updateRowState(row, boss);
+      });
+    }
+
+    function updateRowState(row, boss) {
+      const firstIdx = selectedCharIndices[0];
+      const rawSel = firstIdx != null ? characters[firstIdx]?.selections[boss] : null;
+      const sel = normSel(rawSel);
+      row.classList.toggle('selected', !!sel);
+      const mesoEl = row.querySelector('.boss-meso');
+      const meso = sel ? getMeso(boss, sel.diff, sel.people) : 0;
+      mesoEl.textContent = formatMeso(meso);
+      row.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.diff === sel?.diff);
+      });
+      const peopleSelect = row.querySelector('.people-select');
+      if (peopleSelect) {
+        const maxP = sel ? getMaxPeople(boss, sel.diff) : 6;
+        const curPeople = sel ? Math.min(sel.people, maxP) : 1;
+        peopleSelect.innerHTML = Array.from({ length: maxP }, (_, i) =>
+          `<option value="${i + 1}" ${curPeople === i + 1 ? 'selected' : ''}>${i + 1}</option>`
+        ).join('');
+      }
+      const lockToggle = row.querySelector('.lock-toggle');
+      if (lockToggle) {
+        lockToggle.classList.toggle('locked', !!rawSel?.locked);
+        lockToggle.style.visibility = sel ? 'visible' : 'hidden';
+      }
+    }
+
+    function getWeeklyTotalCount() {
+      return characters.reduce((s, c) => s + Object.keys(c.selections || {}).length, 0);
+    }
+
+    function renderPowerOrderList() {
+      const list = document.getElementById('powerOrderList');
+      if (!list) return;
+      list.innerHTML = characterPowerOrder.map((charIdx, rank) => {
+        const ch = characters[charIdx];
+        const t = getCharTotal(charIdx);
+        return `<div class="power-order-item" draggable="true" data-idx="${charIdx}" data-rank="${rank}">
+          <span class="power-order-rank">${rank + 1}</span>
+          <span class="power-order-name">${(ch?.name || '').replace(/</g, '&lt;')}</span>
+          <span class="power-order-meso">${formatMeso(t)}</span>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('.power-order-item').forEach(el => {
+        el.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', el.dataset.rank);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+        el.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const fromRank = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          const toRank = parseInt(el.dataset.rank, 10);
+          if (fromRank === toRank) return;
+          const idx = characterPowerOrder[fromRank];
+          characterPowerOrder.splice(fromRank, 1);
+          characterPowerOrder.splice(toRank, 0, idx);
+          renderPowerOrderList();
+          updateSummary();
+        });
+      });
+    }
+
+    const BOSS_REMOVE_PRIORITY = { 'Zakum': 0, 'Pierre': 1, 'Von Bon': 2, 'Princess No': 3, 'Crimson Queen': 4 };
+    function getOptimizeSuggestions(overflowCount) {
+      const items = [];
+      characters.forEach((ch, i) => {
+        Object.entries(ch.selections || {}).forEach(([boss, sel]) => {
+          const n = normSel(sel);
+          const meso = n ? getMeso(boss, n.diff, n.people) : 0;
+          items.push({ boss, charName: ch.name, charIdx: i, meso });
+        });
+      });
+      const n = Math.max(1, overflowCount || 10);
+      items.sort((a, b) => {
+        if (a.meso !== b.meso) return a.meso - b.meso;
+        const pa = BOSS_REMOVE_PRIORITY[a.boss] ?? 999;
+        const pb = BOSS_REMOVE_PRIORITY[b.boss] ?? 999;
+        if (pa !== pb) return pa - pb;
+        return getPowerRank(b.charIdx) - getPowerRank(a.charIdx);
+      });
+      return items.slice(0, n);
+    }
+
+    function updateSummary() {
+      const firstIdx = selectedCharIndices[0];
+      const curCh = firstIdx != null ? characters[firstIdx] : null;
+      const count = curCh ? Object.keys(curCh.selections || {}).length : 0;
+      const total = curCh ? Object.entries(curCh.selections || {}).reduce((sum, [b, sel]) => {
+        const n = normSel(sel);
+        return sum + (n ? getMeso(b, n.diff, n.people) : 0);
+      }, 0) : 0;
+      const weeklyTotal = getWeeklyTotalCount();
+      const label = document.getElementById('selectedLabel');
+      const countEl = document.getElementById('selectedCount');
+      if (label) label.textContent = curCh ? `${curCh.name} 已选: ` : '当前角色已选: ';
+      if (countEl) {
+        countEl.textContent = count;
+        countEl.classList.toggle('over-limit', count > 14);
+      }
+      document.getElementById('totalMeso').textContent = formatMeso(total);
+      const weeklyEl = document.getElementById('weeklyTotalCount');
+      if (weeklyEl) {
+        weeklyEl.textContent = weeklyTotal;
+        weeklyEl.classList.toggle('over-limit', weeklyTotal > MAX_BOSS_WEEKLY_TOTAL);
+      }
+      const warnEl = document.getElementById('weeklyLimitWarn');
+      const sidebarEl = document.getElementById('optimizeSidebar');
+      const suggestEl = document.getElementById('optimizeSuggest');
+      const hasChars = characters.length > 0;
+      if (weeklyTotal > MAX_BOSS_WEEKLY_TOTAL) {
+        warnEl.style.display = 'block';
+        warnEl.textContent = '已超过每周 180 个 Boss 上限';
+        const overflowCount = weeklyTotal - MAX_BOSS_WEEKLY_TOTAL;
+        const suggestions = getOptimizeSuggestions(overflowCount);
+        if (hasChars) {
+          sidebarEl.style.display = 'block';
+          renderPowerOrderList();
+          if (suggestions.length > 0) {
+            suggestEl.innerHTML = '<div class="optimize-header"><span class="optimize-title">建议优化：</span><button type="button" class="optimize-btn" id="optimizeBtn">一键优化</button></div>' +
+              suggestions.map(s => {
+                const sel = normSel(characters[s.charIdx]?.selections[s.boss]);
+                const badge = getDiffBadgeHtml(sel?.diff || 'NORMAL');
+                const imgPath = getBossImagePath(s.boss);
+                const bossPart = imgPath ? `<img src="${imgPath}" alt="" class="optimize-item-img">` : '';
+                return `<div class="optimize-item">${bossPart} ${badge} ${s.boss} ${s.charName}</div>`;
+              }).join('');
+            const optimizeBtn = document.getElementById('optimizeBtn');
+            if (optimizeBtn) {
+              optimizeBtn.onclick = () => {
+                const ov = getWeeklyTotalCount() - MAX_BOSS_WEEKLY_TOTAL;
+                const list = getOptimizeSuggestions(ov);
+                list.forEach(s => {
+                  const sel = characters[s.charIdx]?.selections[s.boss];
+                  if (sel && !sel.locked) delete characters[s.charIdx].selections[s.boss];
+                });
+                renderCharTabs();
+                renderBossGrids();
+                renderChars();
+                updateSummary();
+              };
+            }
+          } else {
+            suggestEl.innerHTML = '<div class="optimize-status"><img src="assets/pinkbean.png" alt="" class="optimize-status-img"><p class="optimize-status-text">没有需要优化的啦！</p></div>';
+          }
+        } else {
+          sidebarEl.style.display = 'none';
+        }
+      } else {
+        warnEl.style.display = 'none';
+        if (hasChars) {
+          sidebarEl.style.display = 'block';
+          renderPowerOrderList();
+          const needCount = MAX_BOSS_WEEKLY_TOTAL - weeklyTotal;
+          const msg = weeklyTotal >= MAX_BOSS_WEEKLY_TOTAL
+            ? '没有需要优化的啦！'
+            : `还需要${needCount}个蛋才能满载而归！`;
+          const statusImg = weeklyTotal < MAX_BOSS_WEEKLY_TOTAL ? 'assets/pbxyeti.png' : 'assets/pinkbean.png';
+          suggestEl.innerHTML = '<div class="optimize-status"><img src="' + statusImg + '" alt="" class="optimize-status-img"><p class="optimize-status-text">' + msg + '</p></div>';
+        } else {
+          sidebarEl.style.display = 'none';
+        }
+      }
+      updateTotalAll();
+      renderMaxBossSelect();
+      saveToStorage();
+    }
+
+    function renderChars() {
+      const list = document.getElementById('charList');
+      list.innerHTML = '';
+      characters.forEach((ch, i) => {
+        const t = ch.totals || 0;
+        const div = document.createElement('div');
+        div.className = 'char-list-item';
+        const escName = ch.name.replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        div.innerHTML = `
+          <span class="char-name char-name-editable" data-idx="${i}" title="点击修改备注">${escName}</span>
+          <div class="char-item-bottom">
+            <span class="summary-value">${formatMeso(t)}</span>
+            ${characters.length > 1 ? `<button class="remove-char" data-idx="${i}">删除</button>` : ''}
+          </div>
+        `;
+        list.appendChild(div);
+        const nameEl = div.querySelector('.char-name-editable');
+        if (nameEl) {
+          nameEl.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = ch.name;
+            input.className = 'char-name-input';
+            input.maxLength = 20;
+            nameEl.replaceWith(input);
+            input.focus();
+            input.select();
+            const save = () => {
+              const v = input.value.trim();
+              if (v) ch.name = v;
+              renderCharTabs();
+              renderChars();
+              updateSummary();
+            };
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') input.blur();
+            });
+          });
+        }
+      });
+      list.querySelectorAll('.remove-char').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = parseInt(btn.dataset.idx, 10);
+          characters.splice(i, 1);
+          onCharacterRemoved(i);
+          selectedCharIndices = selectedCharIndices.filter(idx => idx !== i).map(idx => idx > i ? idx - 1 : idx);
+          if (selectedCharIndices.length === 0) selectedCharIndices = [Math.max(0, characters.length - 1)];
+          renderCharTabs();
+          renderBossGrids();
+          renderChars();
+          updateSummary();
+        });
+      });
+    }
+
+    function getTotalMesoWithin180() {
+      const items = [];
+      characters.forEach((ch, i) => {
+        Object.entries(ch.selections || {}).forEach(([boss, sel]) => {
+          const n = normSel(sel);
+          const meso = n ? getMeso(boss, n.diff, n.people) : 0;
+          items.push({ meso, charIdx: i, boss });
+        });
+      });
+      if (items.length <= MAX_BOSS_WEEKLY_TOTAL) {
+        return items.reduce((s, x) => s + x.meso, 0);
+      }
+      items.sort((a, b) => {
+        if (a.meso !== b.meso) return a.meso - b.meso;
+        const pa = BOSS_REMOVE_PRIORITY[a.boss] ?? 999;
+        const pb = BOSS_REMOVE_PRIORITY[b.boss] ?? 999;
+        if (pa !== pb) return pa - pb;
+        return getPowerRank(b.charIdx) - getPowerRank(a.charIdx);
+      });
+      const kept = items.slice(-MAX_BOSS_WEEKLY_TOTAL);
+      return kept.reduce((s, x) => s + x.meso, 0);
+    }
+
+    function updateTotalAll() {
+      let sum = 0;
+      characters.forEach(ch => {
+        const t = Object.entries(ch.selections || {}).reduce((s, [b, sel]) => {
+          const n = normSel(sel);
+          return s + (n ? getMeso(b, n.diff, n.people) : 0);
+        }, 0);
+        ch.totals = t;
+        sum += t;
+      });
+      const displaySum = getTotalMesoWithin180();
+      document.getElementById('totalAll').textContent = `全部角色 Meso 总计: ${formatMeso(displaySum)}`;
+      renderChars();
+    }
+
+    function renderMaxBossSelect() {
+      const trigger = document.getElementById('maxBossTrigger');
+      const list = document.getElementById('maxBossList');
+      if (!trigger || !list) return;
+      const firstIdx = selectedCharIndices[0];
+      const ch = firstIdx != null ? characters[firstIdx] : null;
+      const opts = getMaxBossOptionsForSelect();
+      const curVal = ch?.maxBoss ? `${ch.maxBoss.boss}|${ch.maxBoss.diff}` : '';
+      const curOpt = opts.find(o => o.boss + '|' + o.diff === curVal) || (ch?.maxBoss ? { boss: ch.maxBoss.boss, diff: ch.maxBoss.diff, meso: getBaseMeso(ch.maxBoss.boss, ch.maxBoss.diff) } : null);
+      const triggerContent = trigger.querySelector('.max-boss-trigger-content');
+      if (triggerContent) {
+        if (curOpt) {
+          const badge = getDiffBadgeHtml(curOpt.diff);
+          const imgPath = getBossImagePath(curOpt.boss);
+          const imgHtml = imgPath ? `<img src="${imgPath}" alt="" class="max-boss-opt-img">` : '';
+          triggerContent.innerHTML = `${badge} ${imgHtml}${curOpt.boss}`;
+        } else {
+          triggerContent.textContent = '-- 未设置 --';
+        }
+      }
+      list.innerHTML = '<div class="max-boss-opt" data-value="">-- 未设置 --</div>' +
+        opts.map(o => {
+          const badge = getDiffBadgeHtml(o.diff);
+          const imgPath = getBossImagePath(o.boss);
+          const imgHtml = imgPath ? `<img src="${imgPath}" alt="" class="max-boss-opt-img">` : '';
+          const val = o.boss + '|' + o.diff;
+          return `<div class="max-boss-opt" data-value="${val.replace(/"/g, '&quot;')}">${badge} ${imgHtml}${o.boss}</div>`;
+        }).join('');
+    }
+
+    function runAutoCalc() {
+      const firstIdx = selectedCharIndices[0];
+      const targets = firstIdx != null ? selectedCharIndices : [];
+      const MAX_PER_CHAR = 14;
+      targets.forEach(i => {
+        const ch = characters[i];
+        const maxBoss = ch.maxBoss;
+        if (!maxBoss) return;
+        const threshold = getBaseMeso(maxBoss.boss, maxBoss.diff);
+        const lockedBosses = Object.entries(ch.selections || {}).filter(([, s]) => s?.locked).map(([b]) => b);
+        const lockedCount = lockedBosses.length;
+        const slotsLeft = Math.max(0, MAX_PER_CHAR - lockedCount);
+        const allBosses = [...(bossData.categories.Weekly || []), ...(bossData.categories.Monthly || [])];
+        const candidates = [];
+        for (const boss of allBosses) {
+          if (lockedBosses.includes(boss)) continue;
+          const curSel = normSel(ch.selections[boss]);
+          let cand;
+          if (curSel) {
+            const meso = getMeso(boss, curSel.diff, curSel.people);
+            cand = { boss, diff: curSel.diff, people: curSel.people, meso };
+          } else {
+            const prices = bossData.prices[boss] || {};
+            const entries = Object.entries(prices).map(([diff, meso]) => ({ diff, meso }));
+            const valid = entries.filter(e => e.meso <= threshold).sort((a, b) => b.meso - a.meso);
+            if (valid.length > 0) cand = { boss, diff: valid[0].diff, people: getDefaultPeople(boss, valid[0].diff), meso: valid[0].meso };
+          }
+          if (cand) candidates.push(cand);
+        }
+        const BOSS_SELECT_PRIORITY = { 'Zakum': 0, 'Pierre': 1, 'Von Bon': 2, 'Princess No': 3, 'Crimson Queen': 4 };
+        candidates.sort((a, b) => {
+          if (a.meso !== b.meso) return b.meso - a.meso;
+          const pa = BOSS_SELECT_PRIORITY[a.boss] ?? 999;
+          const pb = BOSS_SELECT_PRIORITY[b.boss] ?? 999;
+          return pb - pa;
+        });
+        const toSelect = candidates.slice(0, slotsLeft);
+        for (const boss of allBosses) {
+          if (lockedBosses.includes(boss)) continue;
+          const pick = toSelect.find(c => c.boss === boss);
+          if (pick) {
+            ch.selections[boss] = { diff: pick.diff, people: pick.people || getDefaultPeople(pick.boss, pick.diff) };
+          } else {
+            delete ch.selections[boss];
+          }
+        }
+      });
+      renderCharTabs();
+      renderBossGrids();
+      renderChars();
+      updateSummary();
+    }
+
+    document.getElementById('maxBossTrigger').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const list = document.getElementById('maxBossList');
+      list.style.display = list.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+      if (document.getElementById('maxBossDropdown').contains(e.target)) return;
+      const list = document.getElementById('maxBossList');
+      list.style.display = 'none';
+    });
+    document.getElementById('maxBossList').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opt = e.target.closest('.max-boss-opt');
+      if (!opt) return;
+      const v = opt.dataset.value || '';
+      selectedCharIndices.forEach(i => {
+        if (v) {
+          const [boss, diff] = v.split('|');
+          characters[i].maxBoss = { boss, diff };
+        } else {
+          characters[i].maxBoss = null;
+        }
+      });
+      renderMaxBossSelect();
+      document.getElementById('maxBossList').style.display = 'none';
+      saveToStorage();
+    });
+
+    document.getElementById('autoCalcBtn').addEventListener('click', () => {
+      runAutoCalc();
+    });
+
+    document.getElementById('addChar').addEventListener('click', () => {
+      const input = document.getElementById('charRemarkInput');
+      const remark = (input && input.value.trim()) || '';
+      const name = remark || `角色 ${characters.length + 1}`;
+      characters.push({
+        id: Date.now(),
+        name: name,
+        maxBoss: null,
+        selections: {}
+      });
+      onCharacterAdded();
+      if (input) input.value = '';
+      selectedCharIndices = [characters.length - 1];
+      renderCharTabs();
+      renderBossGrids();
+      renderChars();
+      updateSummary();
+    });
+
+    document.getElementById('charRemarkInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('addChar').click();
+    });
+
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    window.addEventListener('beforeunload', () => { saveToStorage(); });
+
+    loadData();
+  </script>
+</body>
+</html>
