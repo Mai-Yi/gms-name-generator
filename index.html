@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>冒险岛 GMS 工具集</title>
-  <link rel="stylesheet" href="style.css">
+  <base href="./">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="has-app-header">
   <nav class="app-header">
@@ -309,37 +310,46 @@
   <script>
     (function () {
       function showPanel(id) {
-        document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
-        document.querySelectorAll('.app-tab').forEach(function (t) { t.classList.remove('active'); });
+        var panels = document.querySelectorAll('.panel');
+        var tabs = document.querySelectorAll('.app-tab');
         var panel = document.getElementById('panel-' + id);
         var tab = document.querySelector('.app-tab[data-panel="' + id + '"]');
+        for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+        for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
         if (panel) panel.classList.add('active');
         if (tab) tab.classList.add('active');
         var sidebar = document.getElementById('optimizeSidebar');
         if (sidebar) {
-          if (id === 'name') {
-            sidebar.style.display = 'none';
-          } else if (id === 'crystal') {
-            sidebar.style.display = 'block';
-            if (window.__crystalRefreshSidebar) window.__crystalRefreshSidebar();
-          }
+          sidebar.style.display = (id === 'crystal') ? 'block' : 'none';
+          if (id === 'crystal' && window.__crystalRefreshSidebar) window.__crystalRefreshSidebar();
         }
       }
       function init() {
-        var hash = (location.hash || '#name').replace('#', '');
+        var hash = (location.hash || '#name').replace(/^#/, '');
         var id = (hash === 'crystal') ? 'crystal' : 'name';
         showPanel(id);
-        location.hash = id;
+        if (location.hash !== '#' + id) location.hash = id;
       }
-      document.querySelectorAll('.app-tab').forEach(function (t) {
-        t.addEventListener('click', function (e) {
-          e.preventDefault();
-          showPanel(t.dataset.panel);
-          location.hash = t.dataset.panel;
-        });
-      });
+      function bindTabs() {
+        var tabEls = document.querySelectorAll('.app-tab');
+        for (var i = 0; i < tabEls.length; i++) {
+          (function (el) {
+            el.addEventListener('click', function (e) {
+              e.preventDefault();
+              var pid = el.getAttribute('data-panel');
+              if (pid) { showPanel(pid); location.hash = pid; }
+            });
+          })(tabEls[i]);
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { bindTabs(); init(); });
+      } else {
+        bindTabs();
+        init();
+      }
       window.addEventListener('hashchange', init);
-      init();
+      window.addEventListener('load', init);
     })();
   </script>
 
