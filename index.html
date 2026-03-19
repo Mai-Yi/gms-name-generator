@@ -81,6 +81,7 @@
     <section>
       <div class="char-tabs-wrap">
         <span class="batch-hint" id="batchHint">按住 Ctrl 点击角色可多选批量修改</span>
+        <span class="batch-hint batch-hint-mobile">点击切换角色</span>
         <div class="char-tabs" id="charTabs"></div>
       </div>
       <div class="summary">
@@ -122,7 +123,8 @@
   </div>
   </div>
 
-  <aside id="optimizeSidebar" class="optimize-sidebar" style="display:none;">
+  <div class="sidebar-wrapper" id="sidebarWrapper" style="display:none;">
+    <aside id="optimizeSidebar" class="optimize-sidebar">
     <div class="optimize-sidebar-inner">
       <div id="powerOrderPanel" class="power-order-panel">
         <div class="power-order-title">战力排序（拖拽调整，从大到小）</div>
@@ -130,7 +132,9 @@
       </div>
       <div id="optimizeSuggest" class="optimize-suggest"></div>
     </div>
-  </aside>
+    </aside>
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="收起侧边栏" aria-label="收起侧边栏"><span class="sidebar-toggle-icon"></span></button>
+  </div>
 
   <div class="help-overlay" id="helpOverlay">
     <div class="help-modal">
@@ -318,10 +322,13 @@
         for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
         if (panel) panel.classList.add('active');
         if (tab) tab.classList.add('active');
-        var sidebar = document.getElementById('optimizeSidebar');
-        if (sidebar) {
-          sidebar.style.display = (id === 'crystal') ? 'block' : 'none';
-          if (id === 'crystal' && window.__crystalRefreshSidebar) window.__crystalRefreshSidebar();
+        var wrapper = document.getElementById('sidebarWrapper');
+        if (wrapper) {
+          wrapper.style.display = (id === 'crystal') ? 'flex' : 'none';
+          if (id === 'crystal') {
+            if (window.__crystalRefreshSidebar) window.__crystalRefreshSidebar();
+            window.dispatchEvent(new CustomEvent('crystal-panel-shown'));
+          }
         }
       }
       function init() {
@@ -350,6 +357,46 @@
       }
       window.addEventListener('hashchange', init);
       window.addEventListener('load', init);
+    })();
+  </script>
+  <script>
+    (function () {
+      var SIDEBAR_KEY = 'gms-optimize-sidebar-collapsed';
+      var BREAKPOINT = 768;
+      function initSidebarToggle() {
+        var wrapper = document.getElementById('sidebarWrapper');
+        var sidebar = document.getElementById('optimizeSidebar');
+        var btn = document.getElementById('sidebarToggle');
+        if (!wrapper || !sidebar || !btn) return;
+        function isVisible() {
+          var w = document.getElementById('sidebarWrapper');
+          return w && w.style.display !== 'none';
+        }
+        function setCollapsed(collapsed) {
+          sidebar.classList.toggle('collapsed', collapsed);
+          btn.title = collapsed ? '展开侧边栏' : '收起侧边栏';
+          btn.setAttribute('aria-label', collapsed ? '展开侧边栏' : '收起侧边栏');
+          try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch (e) {}
+        }
+        function checkAutoCollapse() {
+          if (!isVisible()) return;
+          if (window.innerWidth < BREAKPOINT) setCollapsed(true);
+        }
+        function checkAutoExpand() {
+          if (!isVisible()) return;
+          if (window.innerWidth >= BREAKPOINT) setCollapsed(false);
+        }
+        var saved = '';
+        try { saved = localStorage.getItem(SIDEBAR_KEY); } catch (e) {}
+        if (window.innerWidth >= BREAKPOINT) setCollapsed(false);
+        else if (saved === '1') setCollapsed(true);
+        else if (window.innerWidth < BREAKPOINT) setCollapsed(true);
+        btn.addEventListener('click', function () { setCollapsed(!sidebar.classList.contains('collapsed')); });
+        window.addEventListener('resize', function () { checkAutoCollapse(); checkAutoExpand(); });
+        window.addEventListener('crystal-panel-shown', function () { checkAutoCollapse(); checkAutoExpand(); });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSidebarToggle);
+      else initSidebarToggle();
     })();
   </script>
 
@@ -512,7 +559,7 @@
             return s + (n ? getMeso(b, n.diff, n.people) : 0);
           }, 0);
           const isSelected = selectedCharIndices.includes(i);
-          return `<button class="char-tab ${isSelected ? 'active' : ''}" data-idx="${i}">${ch.name} (${formatMeso(t)})</button>`;
+          return `<button class="char-tab ${isSelected ? 'active' : ''}" data-idx="${i}">${ch.name}</button>`;
         }).join('');
         const hint = document.getElementById('batchHint');
         tabs.querySelectorAll('.char-tab').forEach(btn => {
@@ -669,7 +716,7 @@
         list.innerHTML = characterPowerOrder.map((charIdx, rank) => {
           const ch = characters[charIdx];
           const t = getCharTotal(charIdx);
-          return `<div class="power-order-item" draggable="true" data-idx="${charIdx}" data-rank="${rank}"><span class="power-order-rank">${rank + 1}</span><span class="power-order-name">${(ch?.name || '').replace(/</g, '&lt;')}</span><span class="power-order-meso">${formatMeso(t)}</span></div>`;
+          return `<div class="power-order-item" draggable="true" data-idx="${charIdx}" data-rank="${rank}"><span class="power-order-rank">${rank + 1}</span><span class="power-order-name">${(ch?.name || '').replace(/</g, '&lt;')}</span></div>`;
         }).join('');
         list.querySelectorAll('.power-order-item').forEach(el => {
           el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', el.dataset.rank); e.dataTransfer.effectAllowed = 'move'; });
@@ -695,7 +742,7 @@
           Object.entries(ch.selections || {}).forEach(([boss, sel]) => {
             const n = normSel(sel);
             const meso = n ? getMeso(boss, n.diff, n.people) : 0;
-            items.push({ boss, charName: ch.name, charIdx: i, meso });
+            items.push({ boss, charName: ch.name, charIdx: i, meso, locked: !!sel?.locked });
           });
         });
         const n = Math.max(1, overflowCount || 10);
@@ -727,28 +774,33 @@
         const weeklyEl = document.getElementById('weeklyTotalCount');
         if (weeklyEl) { weeklyEl.textContent = weeklyTotal; weeklyEl.classList.toggle('over-limit', weeklyTotal > MAX_BOSS_WEEKLY_TOTAL); }
         const warnEl = document.getElementById('weeklyLimitWarn');
+        const wrapperEl = document.getElementById('sidebarWrapper');
         const sidebarEl = document.getElementById('optimizeSidebar');
         const suggestEl = document.getElementById('optimizeSuggest');
         const hasChars = characters.length > 0;
         if (warnEl) warnEl.style.display = weeklyTotal > MAX_BOSS_WEEKLY_TOTAL ? 'block' : 'none';
         if (warnEl && weeklyTotal > MAX_BOSS_WEEKLY_TOTAL) warnEl.textContent = '已超过每周 180 个 Boss 上限';
-        if (sidebarEl && hasChars) {
-          sidebarEl.style.display = 'block';
+        if (wrapperEl && hasChars) {
+          wrapperEl.style.display = 'flex';
           renderPowerOrderList();
           if (weeklyTotal > MAX_BOSS_WEEKLY_TOTAL) {
             const overflowCount = weeklyTotal - MAX_BOSS_WEEKLY_TOTAL;
             const suggestions = getOptimizeSuggestions(overflowCount);
             if (suggestEl) {
               if (suggestions.length > 0) {
-                suggestEl.innerHTML = '<div class="optimize-header"><span class="optimize-title">建议优化：</span><button type="button" class="optimize-btn" id="optimizeBtn">一键优化</button></div>' + suggestions.map(s => {
+                const hasLocked = suggestions.some(s => s.locked);
+                const allLocked = suggestions.every(s => s.locked);
+                const lockedWarn = hasLocked ? '<p class="optimize-locked-warn">这个蛋千万不要卖掉噢！</p>' : '';
+                suggestEl.innerHTML = '<div class="optimize-header"><span class="optimize-title">建议优化：</span><button type="button" class="optimize-btn' + (allLocked ? ' optimize-btn-disabled' : '') + '" id="optimizeBtn"' + (allLocked ? ' disabled' : '') + '>一键优化</button></div>' + lockedWarn + suggestions.map(s => {
                   const sel = normSel(characters[s.charIdx]?.selections[s.boss]);
                   const badge = getDiffBadgeHtml(sel?.diff || 'NORMAL');
                   const imgPath = getBossImagePath(s.boss);
                   const bossPart = imgPath ? `<img src="${imgPath}" alt="" class="optimize-item-img">` : '';
-                  return `<div class="optimize-item">${bossPart} ${badge} ${s.boss} ${s.charName}</div>`;
+                  const locked = s.locked ? ' <span class="optimize-item-locked">(已锁定)</span>' : '';
+                  return `<div class="optimize-item">${bossPart} ${badge} ${s.charName}${locked}</div>`;
                 }).join('');
                 const optimizeBtn = document.getElementById('optimizeBtn');
-                if (optimizeBtn) optimizeBtn.onclick = () => {
+                if (optimizeBtn && !allLocked) optimizeBtn.onclick = () => {
                   const ov = getWeeklyTotalCount() - MAX_BOSS_WEEKLY_TOTAL;
                   getOptimizeSuggestions(ov).forEach(s => {
                     const sel = characters[s.charIdx]?.selections[s.boss];
@@ -767,7 +819,7 @@
             const statusImg = weeklyTotal < MAX_BOSS_WEEKLY_TOTAL ? 'assets/pbxyeti.png' : 'assets/pinkbean.png';
             suggestEl.innerHTML = '<div class="optimize-status"><img src="' + statusImg + '" alt="" class="optimize-status-img"><p class="optimize-status-text">' + msg + '</p></div>';
           }
-        } else if (sidebarEl) sidebarEl.style.display = 'none';
+        } else if (wrapperEl) wrapperEl.style.display = 'none';
         updateTotalAll();
         renderMaxBossSelect();
         saveToStorage();

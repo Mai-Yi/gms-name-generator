@@ -6,7 +6,7 @@
   <title>GMS 搬蛋小助手</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="crystal-page">
   <div class="float-deco left">
     <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
     <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
@@ -38,6 +38,7 @@
     <section>
       <div class="char-tabs-wrap">
         <span class="batch-hint" id="batchHint">按住 Ctrl 点击角色可多选批量修改</span>
+        <span class="batch-hint batch-hint-mobile">点击切换角色</span>
         <div class="char-tabs" id="charTabs"></div>
       </div>
       <div class="summary">
@@ -67,15 +68,18 @@
       <div id="weeklyLimitWarn" class="limit-warn" style="display:none;"></div>
       <div id="categories"></div>
     </section>
-    <aside id="optimizeSidebar" class="optimize-sidebar" style="display:none;">
+    <div class="sidebar-wrapper" id="sidebarWrapper" style="display:none;">
+    <aside id="optimizeSidebar" class="optimize-sidebar">
       <div class="optimize-sidebar-inner">
         <div id="powerOrderPanel" class="power-order-panel">
           <div class="power-order-title">战力排序（拖拽调整，从大到小）</div>
           <div id="powerOrderList" class="power-order-list"></div>
         </div>
-        <div id="optimizeSuggest" class="optimize-suggest"></div>
-      </div>
+      <div id="optimizeSuggest" class="optimize-suggest"></div>
+    </div>
     </aside>
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="收起侧边栏" aria-label="收起侧边栏"><span class="sidebar-toggle-icon"></span></button>
+    </div>
     <button id="backToTop" class="back-to-top" title="返回上方">
       <span class="back-to-top-img">
         <img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt="">
@@ -163,6 +167,8 @@
       }
       ensurePowerOrder();
       render();
+      window.__crystalRefreshSidebar = updateSummary;
+      window.dispatchEvent(new CustomEvent('crystal-panel-shown'));
     }
 
     function formatMeso(n) {
@@ -269,7 +275,7 @@
           return s + (n ? getMeso(b, n.diff, n.people) : 0);
         }, 0);
         const isSelected = selectedCharIndices.includes(i);
-        return `<button class="char-tab ${isSelected ? 'active' : ''}" data-idx="${i}">${ch.name} (${formatMeso(t)})</button>`;
+        return `<button class="char-tab ${isSelected ? 'active' : ''}" data-idx="${i}">${ch.name}</button>`;
       }).join('');
       const hint = document.getElementById('batchHint');
       tabs.querySelectorAll('.char-tab').forEach(btn => {
@@ -461,7 +467,6 @@
         return `<div class="power-order-item" draggable="true" data-idx="${charIdx}" data-rank="${rank}">
           <span class="power-order-rank">${rank + 1}</span>
           <span class="power-order-name">${(ch?.name || '').replace(/</g, '&lt;')}</span>
-          <span class="power-order-meso">${formatMeso(t)}</span>
         </div>`;
       }).join('');
       list.querySelectorAll('.power-order-item').forEach(el => {
@@ -494,7 +499,7 @@
         Object.entries(ch.selections || {}).forEach(([boss, sel]) => {
           const n = normSel(sel);
           const meso = n ? getMeso(boss, n.diff, n.people) : 0;
-          items.push({ boss, charName: ch.name, charIdx: i, meso });
+          items.push({ boss, charName: ch.name, charIdx: i, meso, locked: !!sel?.locked });
         });
       });
       const n = Math.max(1, overflowCount || 10);
@@ -531,6 +536,7 @@
         weeklyEl.classList.toggle('over-limit', weeklyTotal > MAX_BOSS_WEEKLY_TOTAL);
       }
       const warnEl = document.getElementById('weeklyLimitWarn');
+      const wrapperEl = document.getElementById('sidebarWrapper');
       const sidebarEl = document.getElementById('optimizeSidebar');
       const suggestEl = document.getElementById('optimizeSuggest');
       const hasChars = characters.length > 0;
@@ -540,19 +546,23 @@
         const overflowCount = weeklyTotal - MAX_BOSS_WEEKLY_TOTAL;
         const suggestions = getOptimizeSuggestions(overflowCount);
         if (hasChars) {
-          sidebarEl.style.display = 'block';
+          wrapperEl.style.display = 'flex';
           renderPowerOrderList();
           if (suggestions.length > 0) {
-            suggestEl.innerHTML = '<div class="optimize-header"><span class="optimize-title">建议优化：</span><button type="button" class="optimize-btn" id="optimizeBtn">一键优化</button></div>' +
+            const hasLocked = suggestions.some(s => s.locked);
+            const allLocked = suggestions.every(s => s.locked);
+            const lockedWarn = hasLocked ? '<p class="optimize-locked-warn">这个蛋千万不要卖掉噢！</p>' : '';
+            suggestEl.innerHTML = '<div class="optimize-header"><span class="optimize-title">建议优化：</span><button type="button" class="optimize-btn' + (allLocked ? ' optimize-btn-disabled' : '') + '" id="optimizeBtn"' + (allLocked ? ' disabled' : '') + '>一键优化</button></div>' + lockedWarn +
               suggestions.map(s => {
                 const sel = normSel(characters[s.charIdx]?.selections[s.boss]);
                 const badge = getDiffBadgeHtml(sel?.diff || 'NORMAL');
                 const imgPath = getBossImagePath(s.boss);
                 const bossPart = imgPath ? `<img src="${imgPath}" alt="" class="optimize-item-img">` : '';
-                return `<div class="optimize-item">${bossPart} ${badge} ${s.boss} ${s.charName}</div>`;
+                const locked = s.locked ? ' <span class="optimize-item-locked">(已锁定)</span>' : '';
+                return `<div class="optimize-item">${bossPart} ${badge} ${s.charName}${locked}</div>`;
               }).join('');
             const optimizeBtn = document.getElementById('optimizeBtn');
-            if (optimizeBtn) {
+            if (optimizeBtn && !allLocked) {
               optimizeBtn.onclick = () => {
                 const ov = getWeeklyTotalCount() - MAX_BOSS_WEEKLY_TOTAL;
                 const list = getOptimizeSuggestions(ov);
@@ -570,12 +580,12 @@
             suggestEl.innerHTML = '<div class="optimize-status"><img src="assets/pinkbean.png" alt="" class="optimize-status-img"><p class="optimize-status-text">没有需要优化的啦！</p></div>';
           }
         } else {
-          sidebarEl.style.display = 'none';
+          wrapperEl.style.display = 'none';
         }
       } else {
         warnEl.style.display = 'none';
         if (hasChars) {
-          sidebarEl.style.display = 'block';
+          wrapperEl.style.display = 'flex';
           renderPowerOrderList();
           const needCount = MAX_BOSS_WEEKLY_TOTAL - weeklyTotal;
           const msg = weeklyTotal >= MAX_BOSS_WEEKLY_TOTAL
@@ -584,7 +594,7 @@
           const statusImg = weeklyTotal < MAX_BOSS_WEEKLY_TOTAL ? 'assets/pbxyeti.png' : 'assets/pinkbean.png';
           suggestEl.innerHTML = '<div class="optimize-status"><img src="' + statusImg + '" alt="" class="optimize-status-img"><p class="optimize-status-text">' + msg + '</p></div>';
         } else {
-          sidebarEl.style.display = 'none';
+          wrapperEl.style.display = 'none';
         }
       }
       updateTotalAll();
@@ -831,6 +841,46 @@
     window.addEventListener('beforeunload', () => { saveToStorage(); });
 
     loadData();
+  </script>
+  <script>
+    (function () {
+      var SIDEBAR_KEY = 'gms-optimize-sidebar-collapsed';
+      var BREAKPOINT = 768;
+      function initSidebarToggle() {
+        var wrapper = document.getElementById('sidebarWrapper');
+        var sidebar = document.getElementById('optimizeSidebar');
+        var btn = document.getElementById('sidebarToggle');
+        if (!wrapper || !sidebar || !btn) return;
+        function isVisible() {
+          var w = document.getElementById('sidebarWrapper');
+          return w && w.style.display !== 'none';
+        }
+        function setCollapsed(collapsed) {
+          sidebar.classList.toggle('collapsed', collapsed);
+          btn.title = collapsed ? '展开侧边栏' : '收起侧边栏';
+          btn.setAttribute('aria-label', collapsed ? '展开侧边栏' : '收起侧边栏');
+          try { localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0'); } catch (e) {}
+        }
+        function checkAutoCollapse() {
+          if (!isVisible()) return;
+          if (window.innerWidth < BREAKPOINT) setCollapsed(true);
+        }
+        function checkAutoExpand() {
+          if (!isVisible()) return;
+          if (window.innerWidth >= BREAKPOINT) setCollapsed(false);
+        }
+        var saved = '';
+        try { saved = localStorage.getItem(SIDEBAR_KEY); } catch (e) {}
+        if (window.innerWidth >= BREAKPOINT) setCollapsed(false);
+        else if (saved === '1') setCollapsed(true);
+        else if (window.innerWidth < BREAKPOINT) setCollapsed(true);
+        btn.addEventListener('click', function () { setCollapsed(!sidebar.classList.contains('collapsed')); });
+        window.addEventListener('resize', function () { checkAutoCollapse(); checkAutoExpand(); });
+        window.addEventListener('crystal-panel-shown', function () { checkAutoCollapse(); checkAutoExpand(); });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSidebarToggle);
+      else initSidebarToggle();
+    })();
   </script>
 </body>
 </html>
