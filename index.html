@@ -11,6 +11,7 @@
   <nav class="app-header">
     <a href="#name" class="app-tab active" data-panel="name">中文名起名器</a>
     <a href="#crystal" class="app-tab" data-panel="crystal">搬蛋小助手</a>
+    <a href="#maintenance" class="app-tab" data-panel="maintenance">维护公告</a>
   </nav>
   <div class="float-deco left">
     <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
@@ -117,6 +118,25 @@
       </span>
       <span class="back-to-top-text">返回上方</span>
     </button>
+    <div class="footer-deco">
+      <span class="sub">GMSK 伊桃</span>
+    </div>
+  </div>
+  </div>
+
+  <div id="panel-maintenance" class="panel">
+  <div class="page-wrap page-wrap-news">
+    <div class="banner" role="img" aria-label="冒险岛">
+      <div class="banner-inner">
+        <span class="banner-title">GMS 维护公告</span>
+      </div>
+    </div>
+    <p class="subtitle">Nexon 冒险岛官方维护公告，展示即将进行的维护及最近结束的维护，内容自动翻译为中文，时间已转换为北京时间。</p>
+    <section>
+      <div id="maintenanceContent" class="maintenance-content"></div>
+      <div id="maintenanceLoadErr" class="load-err"></div>
+      <div id="maintenanceLoading" class="maintenance-loading">加载中...</div>
+    </section>
     <div class="footer-deco">
       <span class="sub">GMSK 伊桃</span>
     </div>
@@ -325,6 +345,7 @@
         var wrapper = document.getElementById('sidebarWrapper');
         if (wrapper) {
           wrapper.style.display = (id === 'crystal') ? 'flex' : 'none';
+          if (id === 'maintenance' && window.__maintenanceLoad) window.__maintenanceLoad();
           if (id === 'crystal') {
             if (window.__crystalRefreshSidebar) window.__crystalRefreshSidebar();
             window.dispatchEvent(new CustomEvent('crystal-panel-shown'));
@@ -333,7 +354,7 @@
       }
       function init() {
         var hash = (location.hash || '#name').replace(/^#/, '');
-        var id = (hash === 'crystal') ? 'crystal' : 'name';
+        var id = (hash === 'crystal' || hash === 'maintenance') ? hash : 'name';
         showPanel(id);
         if (location.hash !== '#' + id) location.hash = id;
       }
@@ -1024,6 +1045,110 @@
       document.getElementById('backToTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
       window.addEventListener('beforeunload', () => saveToStorage());
       loadData();
+    })();
+  </script>
+  <script>
+    (function () {
+      var maintenanceLoading = false;
+      function loadMaintenance() {
+        var content = document.getElementById('maintenanceContent');
+        var err = document.getElementById('maintenanceLoadErr');
+        var loading = document.getElementById('maintenanceLoading');
+        if (!content || !err || !loading) return;
+        if (maintenanceLoading) return;
+        maintenanceLoading = true;
+        content.innerHTML = '';
+        err.textContent = '';
+        loading.style.display = 'block';
+        var base = window.location.pathname.replace(/\/[^/]*$/, '') || '.';
+        fetch(base + '/data/maintenance.json', { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            maintenanceLoading = false;
+            loading.style.display = 'none';
+            if (!data) {
+              err.textContent = '加载失败。';
+              return;
+            }
+            function formatTimeLine(label, orig, beijing) {
+              if (!orig && !beijing) return '';
+              var parts = [];
+              if (orig) parts.push(label + ': ' + orig);
+              if (beijing) parts.push('北京时间: <strong class="maintenance-time-beijing">' + beijing + '</strong>');
+              return parts.join(' | ');
+            }
+            function renderCard(item, label) {
+              var wrap = document.createElement('div');
+              wrap.className = 'maintenance-card';
+              if (label) {
+                var labelEl = document.createElement('div');
+                labelEl.className = 'maintenance-label';
+                labelEl.textContent = label;
+                wrap.appendChild(labelEl);
+              }
+              var title = document.createElement('div');
+              title.className = 'maintenance-title';
+              title.textContent = item.titleZh || item.title || '';
+              wrap.appendChild(title);
+              var timeBlock = document.createElement('div');
+              timeBlock.className = 'maintenance-time';
+              var timeLines = [];
+              var startLine = formatTimeLine('开始', item.startTime, item.startTimeBeijing);
+              if (startLine) timeLines.push(startLine);
+              var endLine = formatTimeLine('结束', item.endTime, item.endTimeBeijing);
+              if (endLine) timeLines.push(endLine);
+              timeBlock.innerHTML = timeLines.join(' | ');
+              wrap.appendChild(timeBlock);
+              var hasBody = !!(item.bodyZh || item.body);
+              var expandBtn = null;
+              if (hasBody) {
+                expandBtn = document.createElement('button');
+                expandBtn.type = 'button';
+                expandBtn.className = 'maintenance-expand-btn';
+                expandBtn.textContent = '展开查看详情';
+                expandBtn.setAttribute('aria-expanded', 'false');
+                wrap.appendChild(expandBtn);
+              }
+              var body = document.createElement('div');
+              body.className = 'maintenance-body maintenance-body-collapsed';
+              body.innerHTML = (item.bodyZh || item.body || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\n/g, '<br>');
+              wrap.appendChild(body);
+              if (expandBtn) {
+                expandBtn.addEventListener('click', function () {
+                  var expanded = body.classList.toggle('maintenance-body-collapsed');
+                  expandBtn.textContent = expanded ? '展开查看详情' : '收起';
+                  expandBtn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+                });
+              }
+              var link = document.createElement('a');
+              link.href = item.url || '#';
+              link.target = '_blank';
+              link.rel = 'noopener';
+              link.className = 'news-item-link';
+              link.textContent = '查看原文';
+              wrap.appendChild(link);
+              return wrap;
+            }
+            var item = data.item;
+            var lastCompleted = data.lastCompleted;
+            if (!item && !lastCompleted) {
+              content.innerHTML = '<div class="maintenance-empty">暂无维护信息。</div>';
+              return;
+            }
+            if (item) {
+              content.appendChild(renderCard(item, '即将进行'));
+            }
+            if (lastCompleted) {
+              content.appendChild(renderCard(lastCompleted, '最近结束'));
+            }
+          })
+          .catch(function () {
+            maintenanceLoading = false;
+            loading.style.display = 'none';
+            err.textContent = '加载失败。';
+          });
+      }
+      window.__maintenanceLoad = loadMaintenance;
     })();
   </script>
 </body>

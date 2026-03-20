@@ -1,0 +1,10 @@
+{
+  "name": "gms-tool",
+  "private": true,
+  "scripts": {
+    "fetch-maintenance": "node scripts/fetch-maintenance.js"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
