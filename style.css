@@ -428,7 +428,7 @@ input[type="text"]::placeholder {
   .subtitle { font-size: 0.85rem; margin-bottom: 14px; }
   .char-header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
   .add-char-wrap { flex-direction: column; }
-  .char-remark-input { width: 100%; }
+  .add-char-wrap input.char-remark-input { width: 100%; max-width: 270px; }
   .summary { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
   .auto-calc-wrap { flex-direction: column; align-items: stretch; }
   .max-boss-trigger { min-width: 0; width: 100%; }
@@ -589,6 +589,20 @@ input[type="text"]::placeholder {
   line-height: 1;
 }
 .help-close:hover { color: #4A148C; }
+
+.crystal-backup-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #7B1FA2;
+  opacity: 0.9;
+  width: 100%;
+}
+.crystal-backup-hint a {
+  color: #4A148C;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.crystal-backup-hint a:hover { text-decoration: underline; }
 
 .subtitle {
   color: #7B1FA2;
@@ -960,32 +974,41 @@ input[type="text"]::placeholder {
 .char-list-item .summary-value { font-size: 1.1rem; }
 .char-header {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1rem;
-  flex-wrap: wrap;
 }
 .char-name { font-size: 1.1rem; font-weight: 600; color: #5D4E6D; }
+.char-header-row2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.char-header-row2 .crystal-backup-hint { margin: 0; flex: 0 0 100%; }
 .add-char-wrap {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }
-.char-remark-input {
+.add-char-wrap .btn { margin-top: 0; }
+.add-char-wrap input.char-remark-input {
   padding: 8px 12px;
   font-size: 14px;
   border: 2px solid #E1BEE7;
   border-radius: 8px;
   background: rgba(255,255,255,0.95);
   color: #4A148C;
-  width: 140px;
+  width: 180px;
+  max-width: 100%;
+  flex: 0 0 auto;
 }
-.char-remark-input:focus {
+.add-char-wrap input.char-remark-input:focus {
   outline: none;
   border-color: #B39DDB;
 }
-.char-remark-input::placeholder {
+.add-char-wrap input.char-remark-input::placeholder {
   color: #B39DDB;
 }
 .char-list-item .char-name-editable {

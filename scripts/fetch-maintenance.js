@@ -29,34 +29,6 @@ function parseMaintenanceTime(str) {
   return null;
 }
 
-function isCompletedByContent(item) {
-  const url = (item.url || '').toLowerCase();
-  const text = ((item.title || '') + '\n' + (item.body || '') + '\n' + (item.titleZh || '')).toLowerCase();
-  if (url.includes('completed')) return true;
-  if (text.includes('[completed]') || text.includes('[已完成]')) return true;
-  if (text.includes('has been completed') || text.includes('maintenance has been completed')) return true;
-  if (text.includes('maintenance completed') || text.includes('维护已完成')) return true;
-  return false;
-}
-
-function isUpcoming(item) {
-  if (isCompletedByContent(item)) return false;
-  const end = parseMaintenanceTime(item.endTime || item.end || item.endDate);
-  const start = parseMaintenanceTime(item.startTime || item.start || item.startDate);
-  const now = new Date();
-  if (end && end > now) return true;
-  if (start && start > now) return true;
-  if (!end && !start) return true;
-  return false;
-}
-
-function isCompleted(item) {
-  if (isCompletedByContent(item)) return true;
-  const end = parseMaintenanceTime(item.endTime || item.end || item.endDate);
-  const now = new Date();
-  return end && end < now;
-}
-
 async function fetchHtml(url) {
   const res = await fetch(url, {
     headers: {
@@ -84,40 +56,38 @@ async function fetchWithPuppeteer(url, browser, opts) {
   try {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 3000));
-    if (dismissModal) {
-      try {
-        await page.evaluate(() => {
-          const btn = [...document.querySelectorAll('button, [role="button"]')].find(el => /^OK$|agree|accept/i.test(el.textContent?.trim()));
-          if (btn) btn.click();
-        });
-        await new Promise(r => setTimeout(r, 1500));
-      } catch (_) {}
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 2500));
+    let html = '';
+    let extractedBody = '';
+    try {
+      html = await page.content();
+    } catch (e) {
+      if (/context was destroyed|Target closed|navigation/i.test(String(e))) {
+        await new Promise(r => setTimeout(r, 2000));
+        try { html = await page.content(); } catch (_) { html = ''; }
+      } else throw e;
     }
-    const html = await page.content();
-    if (dismissModal) {
-      try {
-        await page.waitForSelector('article, main', { timeout: 5000 }).catch(() => null);
-        await new Promise(r => setTimeout(r, 500));
-      } catch (_) {}
+    try {
+      extractedBody = await page.evaluate(() => {
+        const inModal = (el) => el.closest('[class*="modal"],[class*="Modal"],[class*="popup"],[class*="overlay"],[class*="dialog"]');
+        const sel = document.querySelector('article') || document.querySelector('main');
+        if (sel && !inModal(sel)) {
+          const t = sel.innerText.trim();
+          if (t.length > 100) return t.slice(0, 12000);
+        }
+        const contents = document.querySelectorAll('[class*="content"],[class*="Content"],[class*="article"],[class*="Article"]');
+        let best = '';
+        for (const el of contents) {
+          if (inModal(el)) continue;
+          const t = el.innerText.trim();
+          if (t.length > 150 && t.length > best.length) best = t;
+        }
+        return best.slice(0, 12000);
+      });
+    } catch (e) {
+      if (!/context was destroyed|Target closed|navigation/i.test(String(e))) throw e;
     }
-    const extractedBody = await page.evaluate(() => {
-      const inModal = (el) => el.closest('[class*="modal"],[class*="Modal"],[class*="popup"],[class*="overlay"],[class*="dialog"]');
-      const sel = document.querySelector('article') || document.querySelector('main');
-      if (sel && !inModal(sel)) {
-        const t = sel.innerText.trim();
-        if (t.length > 100) return t.slice(0, 12000);
-      }
-      const contents = document.querySelectorAll('[class*="content"],[class*="Content"],[class*="article"],[class*="Article"]');
-      let best = '';
-      for (const el of contents) {
-        if (inModal(el)) continue;
-        const t = el.innerText.trim();
-        if (t.length > 150 && t.length > best.length) best = t;
-      }
-      return best.slice(0, 12000);
-    });
     return { html, extractedBody };
   } finally {
     if (ownBrowser) await browser.close();
@@ -354,9 +324,10 @@ async function main() {
     console.warn('DEEPSEEK_API_KEY not set. Will save without translation.');
   }
 
-  let existing = { item: null, lastCompleted: null };
+  let existing = { items: [] };
   try {
-    existing = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
+    const prev = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
+    existing.items = Array.isArray(prev?.items) ? prev.items : [];
   } catch (_) {}
 
   console.log('Fetching maintenance page...');
@@ -382,89 +353,56 @@ async function main() {
     } catch (_) {}
   }
 
-  const upcomingCandidates = items.filter(isUpcoming).sort((a, b) => {
-    const sa = parseMaintenanceTime(a.startTime || a.endTime);
-    const sb = parseMaintenanceTime(b.startTime || b.endTime);
-    if (!sa) return 1;
-    if (!sb) return -1;
-    return sa - sb;
-  });
-  const completedCandidates = items.filter(isCompleted).sort((a, b) => {
-    const ea = parseMaintenanceTime(a.endTime);
-    const eb = parseMaintenanceTime(b.endTime);
-    if (!ea) return 1;
-    if (!eb) return -1;
-    return eb - ea;
-  });
-  if (completedCandidates.length === 0 && items.length > 1) {
-    const nonUpcoming = items.find(it => !isUpcoming(it));
-    if (nonUpcoming) completedCandidates.push(nonUpcoming);
-    else if (items[1] && !sameIds(items[1], upcomingCandidates[0])) completedCandidates.push(items[1]);
-  }
-
-  async function findValidItem(candidates, type) {
-    for (const raw of candidates) {
-      if (isKnownIssuesOnly(raw)) {
-        console.log('Skip (known issues only):', (raw.title || '').slice(0, 50) + '...');
-        continue;
+  const candidates = items.filter(raw => !isKnownIssuesOnly(raw));
+  const rawItems = [];
+  for (const raw of candidates) {
+    if (rawItems.length >= 5) break;
+    let body = raw.body;
+    if (raw.url && browser) {
+      console.log('Fetching detail:', raw.url.slice(0, 55) + '...');
+      const detailRes = await fetchWithPuppeteer(raw.url, browser, { dismissModal: true });
+      const detailHtml = detailRes?.html ?? detailRes;
+      if (detailHtml) {
+        body = parseArticleBody(detailHtml) || (detailRes?.extractedBody || '');
+        body = (body || '').replace(/^(?:NEWS\s+CHECK OUT THE LATEST NEWS[\s\S]*?MAINTENANCE\s+)?/i, '').trim();
+        raw.body = body;
       }
-      let body = raw.body;
-      if (raw.url && browser) {
-        console.log('Fetching detail:', raw.url.slice(0, 55) + '...');
-        const detailRes = await fetchWithPuppeteer(raw.url, browser, { dismissModal: true });
-        const detailHtml = detailRes?.html ?? detailRes;
-        if (detailHtml) {
-          body = parseArticleBody(detailHtml) || (detailRes?.extractedBody || '');
-          body = (body || '').replace(/^(?:NEWS\s+CHECK OUT THE LATEST NEWS[\s\S]*?MAINTENANCE\s+)?/i, '').trim();
-          raw.body = body;
-        }
-      }
-      const combined = ((raw.title || '') + '\n' + (body || '')).trim();
-      if (!combined) continue;
-      const isSchedule = await checkIsMaintenanceSchedule(raw.title, body, apiKey);
-      if (!isSchedule) {
-        console.log('Skip (no maintenance time):', (raw.title || '').slice(0, 50) + '...');
-        continue;
-      }
-      const times = extractTimesFromBody(body || '');
-      if (times.start && !raw.startTime) raw.startTime = times.start;
-      if (times.end && !raw.endTime) raw.endTime = times.end;
-      return raw;
     }
-    return null;
+    const combined = ((raw.title || '') + '\n' + (body || '')).trim();
+    if (!combined) continue;
+    const isSchedule = await checkIsMaintenanceSchedule(raw.title, body, apiKey);
+    if (!isSchedule) {
+      console.log('Skip (no maintenance time):', (raw.title || '').slice(0, 50) + '...');
+      continue;
+    }
+    const times = extractTimesFromBody(body || '');
+    if (times.start && !raw.startTime) raw.startTime = times.start;
+    if (times.end && !raw.endTime) raw.endTime = times.end;
+    rawItems.push(raw);
   }
-
-  const rawUpcoming = await findValidItem(upcomingCandidates, 'upcoming');
-  const rawLastCompleted = await findValidItem(completedCandidates, 'lastCompleted');
   if (browser) await browser.close();
 
   const forceFetch = process.env.FORCE_FETCH === '1' || process.argv.includes('--force');
-  const hasNewUpcoming = rawUpcoming && !sameIds(rawUpcoming, existing.item);
-  const hasNewCompleted = rawLastCompleted && !sameIds(rawLastCompleted, existing.lastCompleted);
-  const needDeepSeek = forceFetch || hasNewUpcoming || hasNewCompleted;
-  const noChange = sameIds(rawUpcoming, existing.item) && sameIds(rawLastCompleted, existing.lastCompleted);
+  const existingIds = existing.items.map(i => i?.id || '').join(',');
+  const newIds = rawItems.map(r => r.id || '').join(',');
+  const needDeepSeek = forceFetch || existingIds !== newIds;
+  const noChange = existingIds === newIds && rawItems.length > 0;
 
-  if (!forceFetch && noChange && (rawUpcoming || rawLastCompleted)) {
+  if (!forceFetch && noChange) {
     console.log('No new maintenance, skip update.');
     process.exit(0);
   }
 
-  let item = null;
-  let lastCompleted = null;
-
-  if (rawUpcoming) {
-    const cached = forceFetch ? null : (hasNewUpcoming ? null : existing.item);
-    item = await buildItem(rawUpcoming, cached, needDeepSeek ? apiKey : null);
-  }
-  if (rawLastCompleted) {
-    const cached = forceFetch ? null : (hasNewCompleted ? null : existing.lastCompleted);
-    lastCompleted = await buildItem(rawLastCompleted, cached, needDeepSeek ? apiKey : null);
+  const builtItems = [];
+  for (let i = 0; i < rawItems.length; i++) {
+    const raw = rawItems[i];
+    const cached = forceFetch ? null : existing.items.find(e => sameIds(raw, e));
+    builtItems.push(await buildItem(raw, cached, needDeepSeek ? apiKey : null));
   }
 
   const output = {
     updatedAt: new Date().toISOString(),
-    item,
-    lastCompleted,
+    items: builtItems,
   };
   fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
   fs.writeFileSync(DATA_PATH, JSON.stringify(output, null, 2), 'utf8');

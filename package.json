@@ -2,6 +2,7 @@
   "name": "gms-tool",
   "private": true,
   "scripts": {
+    "dev": "npx serve -p 3000",
     "fetch-maintenance": "node scripts/fetch-maintenance.js"
   },
   "dependencies": {

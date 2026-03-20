@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>冒险岛 GMS 工具集</title>
   <base href="./">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
-<body class="has-app-header">
+<body class="has-app-header" data-build="v4">
   <nav class="app-header">
     <a href="#name" class="app-tab active" data-panel="name">中文名起名器</a>
     <a href="#crystal" class="app-tab" data-panel="crystal">搬蛋小助手</a>
@@ -71,9 +71,13 @@
     <section class="char-section">
       <div class="char-header">
         <span class="char-name">角色列表</span>
-        <div class="add-char-wrap">
-          <input type="text" id="charRemarkInput" placeholder="角色备注（可选）" class="char-remark-input" maxlength="20">
-          <button class="add-char" id="addChar">添加角色</button>
+        <div class="char-header-row2">
+          <div class="add-char-wrap">
+            <input type="text" id="charRemarkInput" placeholder="角色备注（可选）" class="char-remark-input" maxlength="20">
+            <button class="add-char" id="addChar">添加角色</button>
+            <button type="button" class="btn btn-secondary" id="btnLinkBackup">生成可恢复链接</button>
+          </div>
+          <p class="crystal-backup-hint">数据保存在浏览器本地，更新或换设备可能丢失。可使用「生成可恢复链接」保存到浏览器书签。<a href="crystal.html" target="_blank">单独打开搬蛋小助手</a></p>
         </div>
       </div>
       <div id="charList" class="char-list-grid"></div>
@@ -131,7 +135,7 @@
         <span class="banner-title">GMS 维护公告</span>
       </div>
     </div>
-    <p class="subtitle">Nexon 冒险岛官方维护公告，展示即将进行的维护及最近结束的维护，内容自动翻译为中文，时间已转换为北京时间。</p>
+    <p class="subtitle">Nexon 冒险岛官方维护公告，展示最新 5 条公告（含更新中/已结束等），内容自动翻译为中文，时间已转换为北京时间。</p>
     <section>
       <div id="maintenanceContent" class="maintenance-content"></div>
       <div id="maintenanceLoadErr" class="load-err"></div>
@@ -476,16 +480,32 @@
         } catch (e) { return null; }
       }
 
+      function loadFromHash() {
+        try {
+          const hash = location.hash || '';
+          const m = hash.match(/[#&]b=([A-Za-z0-9+/=_-]+)/);
+          if (!m) return null;
+          let b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) b64 += '=';
+          const decoded = decodeURIComponent(escape(atob(b64)));
+          const data = JSON.parse(decoded);
+          return data?.characters?.length ? data : null;
+        } catch (e) { return null; }
+      }
+
       function loadData() {
         const el = document.getElementById('boss-data');
         bossData = el ? JSON.parse(el.textContent) : {};
-        const saved = loadFromStorage();
+        let saved = loadFromHash();
+        const fromHash = !!saved;
+        if (!saved) saved = loadFromStorage();
         if (saved?.characters?.length) {
           characters = saved.characters;
           characters.forEach(ch => { if (!ch.hasOwnProperty('maxBoss')) ch.maxBoss = null; });
           selectedCharIndices = (saved.selectedCharIndices || []).filter(i => i >= 0 && i < characters.length);
           if (selectedCharIndices.length === 0) selectedCharIndices = [0];
           characterPowerOrder = (saved.characterPowerOrder || []).filter(i => i >= 0 && i < characters.length);
+          if (fromHash) saveToStorage();
         }
         ensurePowerOrder();
         render();
@@ -1042,6 +1062,27 @@
       document.getElementById('charRemarkInput')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') document.getElementById('addChar')?.click();
       });
+      document.getElementById('btnLinkBackup')?.addEventListener('click', () => {
+        const data = { characters, selectedCharIndices, characterPowerOrder };
+        const json = JSON.stringify(data);
+        if (json.length > 8000) {
+          alert('数据较多，链接可能过长。请减少角色数量后再试。');
+          return;
+        }
+        try {
+          const b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          const topHref = (window.top !== window.self && window.top.location) ? window.top.location.href : location.href;
+          const base = topHref.replace(/#.*$/, '');
+          const url = base + '#crystal&b=' + b64;
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(url).then(() => alert('已复制链接。保存到书签后，访问该链接即可恢复数据。')).catch(() => prompt('请复制以下链接保存：', url));
+          } else {
+            prompt('请复制以下链接保存到书签：', url);
+          }
+        } catch (e) {
+          alert('生成失败: ' + (e.message || ''));
+        }
+      });
       document.getElementById('backToTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
       window.addEventListener('beforeunload', () => saveToStorage());
       loadData();
@@ -1129,18 +1170,16 @@
               wrap.appendChild(link);
               return wrap;
             }
-            var item = data.item;
-            var lastCompleted = data.lastCompleted;
-            if (!item && !lastCompleted) {
+            var items = Array.isArray(data.items) ? data.items : [];
+            if (data.item) items.unshift(data.item);
+            if (data.lastCompleted) items.push(data.lastCompleted);
+            if (items.length === 0) {
               content.innerHTML = '<div class="maintenance-empty">暂无维护信息。</div>';
               return;
             }
-            if (item) {
-              content.appendChild(renderCard(item, '即将进行'));
-            }
-            if (lastCompleted) {
-              content.appendChild(renderCard(lastCompleted, '最近结束'));
-            }
+            items.forEach(function (it, idx) {
+              content.appendChild(renderCard(it, null));
+            });
           })
           .catch(function () {
             maintenanceLoading = false;
