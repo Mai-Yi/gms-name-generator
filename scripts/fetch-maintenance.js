@@ -1,5 +1,5 @@
 /**
- * Fetch Nexon MapleStory maintenance: upcoming + last completed. Translate via DeepSeek only when new.
+ * Fetch Nexon MapleStory maintenance: latest 5 posts (all types). Translate via DeepSeek only when new.
  * Run: node scripts/fetch-maintenance.js
  * Env: DEEPSEEK_API_KEY (optional, for translation)
  */
@@ -137,41 +137,6 @@ function parseArticleBody(html) {
   return '';
 }
 
-function isKnownIssuesOnly(item) {
-  const url = (item.url || '').toLowerCase();
-  const title = (item.title || '').toLowerCase();
-  if (!/known\s*issues/.test(title + ' ' + url)) return false;
-  if (/completed|scheduled\s+(game\s+)?update|maintenance\s+and\s+live\s+patch/.test(title)) return false;
-  return true;
-}
-
-async function checkIsMaintenanceSchedule(title, body, apiKey) {
-  if (!apiKey) return true;
-  const text = ((title || '') + '\n\n' + (body || '')).slice(0, 3000);
-  if (!text.trim()) return false;
-  try {
-    const res = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: 'Does this game maintenance notice mention specific maintenance start/end times (e.g. UTC, date, duration)? Answer only: yes or no.' },
-          { role: 'user', content: text },
-        ],
-        max_tokens: 10,
-        temperature: 0,
-      }),
-    });
-    if (!res.ok) return true;
-    const data = await res.json();
-    const ans = (data?.choices?.[0]?.message?.content || '').trim().toLowerCase();
-    return ans.startsWith('yes');
-  } catch (_) {
-    return true;
-  }
-}
-
 function parseMaintenanceList(html) {
   const items = [];
   const baseUrl = 'https://www.nexon.com';
@@ -245,10 +210,26 @@ function extractTimesFromBody(body) {
   return times;
 }
 
-const TRANSLATE_SYSTEM = 'Translate the following English game maintenance notice to Simplified Chinese. Keep the tone professional. Rules: (1) For any time mentioned (PDT, EDT, UTC, CET, etc.), add Beijing time with full date in parentheses right after it, wrapped in <strong class="maintenance-time-beijing"></strong>, e.g. "3:18 PM PDT (<strong class="maintenance-time-beijing">北京时间 2026年3月20日 6:18</strong>)" or "12:00 AM UTC (<strong class="maintenance-time-beijing">北京时间 2026年3月19日 8:00</strong>)". Always use the specific date (year month day), never use "次日". (2) Keep server/world names in English: Luna, Solis, Scania, Bera, Hyperion, Kronos, NA Challenger World, EU Challenger World, One-Punch Man Special World, Heroic Worlds, etc. Output only the translation, no explanations.';
+function extractHeadlineFromBody(body) {
+  if (!body || typeof body !== 'string') return '';
+  const lines = body.trim().split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (lines.length < 2) return '';
+  const skipFirst = /^(MAINTENANCE|maintenance)$/i.test(lines[0]) ? 1 : 0;
+  const datePattern = /^\d{4}[年\/\-]|\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*,?\s*\d/;
+  let i = skipFirst;
+  while (i < lines.length && datePattern.test(lines[i])) i++;
+  const headline = i < lines.length ? lines[i] : '';
+  return (headline.length > 3 && headline.length < 200) ? headline : '';
+}
 
-async function translateWithDeepSeek(text, apiKey) {
+const TITLE_TRANSLATE_SYSTEM = 'Translate the following game maintenance article headline to Simplified Chinese. Output ONLY the translated headline, one line, no prefix, no date, no description. Examples: "V.267 Known Issues" -> "V.267 版本已知问题", "[Completed] Scheduled Game Update - March 18, 2026" -> "[已完成] 计划游戏更新 - 2026年3月18日".';
+
+const TRANSLATE_SYSTEM = 'Translate the following English game maintenance notice to Simplified Chinese. Keep the tone professional. Rules: (1) For any time mentioned (PDT, EDT, UTC, CET, etc.), add Beijing time with full date in parentheses right after it, wrapped in <strong class="maintenance-time-beijing"></strong>, e.g. "3:18 PM PDT (<strong class="maintenance-time-beijing">北京时间 2026年3月20日 6:18</strong>)". Always use the specific date (year month day), never use "次日". (2) For the maintenance times section (维护时间/时间详情/Times), use format: header, then date line, then list each timezone with asterisk prefix like "* 太平洋夏令时 (UTC -7): 下午1:00 - 下午3:00". (3) Keep server/world names in English: Luna, Solis, Scania, Bera, Hyperion, Kronos, NA Challenger World, EU Challenger World, One-Punch Man Special World, Heroic Worlds, etc. Output only the translation, no explanations.';
+
+async function translateWithDeepSeek(text, apiKey, opts = {}) {
   if (!text || !apiKey) return text;
+  const sysPrompt = opts.titleOnly ? TITLE_TRANSLATE_SYSTEM : TRANSLATE_SYSTEM;
+  const maxTokens = opts.titleOnly ? 200 : 8000;
   const res = await fetch('https://api.deepseek.com/chat/completions', {
     method: 'POST',
     headers: {
@@ -258,11 +239,11 @@ async function translateWithDeepSeek(text, apiKey) {
     body: JSON.stringify({
       model: 'deepseek-chat',
       messages: [
-        { role: 'system', content: TRANSLATE_SYSTEM },
-        { role: 'user', content: text.slice(0, 10000) },
+        { role: 'system', content: sysPrompt },
+        { role: 'user', content: text.slice(0, opts.titleOnly ? 500 : 10000) },
       ],
-      max_tokens: 8000,
-      temperature: 0.3,
+      max_tokens: maxTokens,
+      temperature: opts.titleOnly ? 0.1 : 0.3,
     }),
   });
   if (!res.ok) {
@@ -281,9 +262,10 @@ async function buildItem(raw, cached, apiKey) {
   let titleZh = cachedItem?.titleZh || '';
   let bodyZh = cachedItem?.bodyZh || '';
   if (apiKey && needTranslate) {
-    if (raw.title) {
+    const headlineToTranslate = extractHeadlineFromBody(raw.body) || raw.title;
+    if (headlineToTranslate) {
       try {
-        titleZh = await translateWithDeepSeek(raw.title, apiKey);
+        titleZh = await translateWithDeepSeek(headlineToTranslate, apiKey, { titleOnly: true });
       } catch (e) {
         console.warn('Translate title failed:', e.message);
       }
@@ -333,6 +315,13 @@ async function main() {
   console.log('Fetching maintenance page...');
   let html = await fetchHtml(MAINTENANCE_URL);
   let items = parseMaintenanceList(html);
+  const earlyCandidates = items.slice(0, 5);
+  const earlyNewIds = earlyCandidates.map(c => (c.id || '').trim()).filter(Boolean).sort().join(',');
+  const earlyExistingIds = existing.items.map(i => (i?.id || '').trim()).filter(Boolean).sort().join(',');
+  if (earlyNewIds && earlyNewIds === earlyExistingIds) {
+    console.log('No new maintenance (IDs unchanged), skip update.');
+    process.exit(0);
+  }
   let browser = null;
   if (items.length === 0) {
     console.log('Fetch returned empty, trying Puppeteer...');
@@ -353,7 +342,7 @@ async function main() {
     } catch (_) {}
   }
 
-  const candidates = items.filter(raw => !isKnownIssuesOnly(raw));
+  const candidates = items.slice(0, 5);
   const rawItems = [];
   for (const raw of candidates) {
     if (rawItems.length >= 5) break;
@@ -370,11 +359,6 @@ async function main() {
     }
     const combined = ((raw.title || '') + '\n' + (body || '')).trim();
     if (!combined) continue;
-    const isSchedule = await checkIsMaintenanceSchedule(raw.title, body, apiKey);
-    if (!isSchedule) {
-      console.log('Skip (no maintenance time):', (raw.title || '').slice(0, 50) + '...');
-      continue;
-    }
     const times = extractTimesFromBody(body || '');
     if (times.start && !raw.startTime) raw.startTime = times.start;
     if (times.end && !raw.endTime) raw.endTime = times.end;

@@ -1527,6 +1527,10 @@ body.has-app-header .sidebar-wrapper {
   font-weight: 700;
   color: #4A148C;
 }
+.maintenance-time-beijing-highlight {
+  color: #C62828;
+  font-weight: 700;
+}
 .maintenance-empty {
   text-align: center;
   padding: 40px;

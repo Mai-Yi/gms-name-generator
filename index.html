@@ -1090,6 +1090,49 @@
   </script>
   <script>
     (function () {
+      function injectBeijingTimeLine(text) {
+        var re = /(维护时间[：:]?\s*\n\n?|时间详情[：:]?\s*\n\n?|时间对照[：:]?\s*\n\n?|Times[：:]?\s*\n\n?)(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日([^\n]*)\n\s*(\*?\s*)([^\n]*(?:\(UTC\s*([+-]?)\s*(\d+)\))[^\n]*)/;
+        var m = text.match(re);
+        if (!m) return text;
+        var utcSign = (m[8] || '-') === '-' ? -1 : 1;
+        var utcOffset = utcSign * parseInt(m[9], 10);
+        var hourDiff = 8 - utcOffset;
+        var month = parseInt(m[3], 10), day = parseInt(m[4], 10);
+        var timeRange = m[7];
+        var h1 = 0, m1 = 0, h2 = 0, m2 = 0;
+        var t = timeRange.match(/(?:上午|下午|凌晨|晚上)?\s*(\d{1,2})\s*[:：]\s*(\d{2})\s*[-–—]\s*(?:上午|下午|凌晨|晚上)?\s*(\d{1,2})\s*[:：]\s*(\d{2})/);
+        if (t) {
+          h1 = parseInt(t[1], 10); m1 = parseInt(t[2], 10);
+          h2 = parseInt(t[3], 10); m2 = parseInt(t[4], 10);
+          var part1 = timeRange.split(/\s*[-–—]\s*/)[0] || '';
+          var part2 = timeRange.split(/\s*[-–—]\s*/)[1] || '';
+          if (/下午|PM/i.test(part1) && h1 < 12) h1 += 12;
+          if (/下午|PM|晚上/i.test(part2) && h2 < 12) h2 += 12;
+          if (/凌晨/i.test(part1) && h1 >= 12) h1 -= 12;
+          if (/晚上/i.test(part1) && h1 < 12 && h1 !== 0) h1 += 12;
+        } else {
+          t = timeRange.match(/(\d{1,2})\s*[:：]\s*(\d{2})/g);
+          if (t && t.length >= 2) {
+            var p1 = t[0].match(/(\d+)\s*[:：]\s*(\d+)/), p2 = t[1].match(/(\d+)\s*[:：]\s*(\d+)/);
+            if (p1 && p2) { h1 = parseInt(p1[1], 10); m1 = parseInt(p1[2], 10); h2 = parseInt(p2[1], 10); m2 = parseInt(p2[2], 10); if (/下午|PM/i.test(timeRange)) { if (h1 < 12) h1 += 12; if (h2 < 12) h2 += 12; } }
+          } else return text;
+        }
+        var rawH1 = h1 + hourDiff, rawH2 = h2 + hourDiff;
+        h1 = (rawH1 + 48) % 24;
+        h2 = (rawH2 + 48) % 24;
+        var day2 = day;
+        if (rawH1 >= 24) day2++; else if (rawH1 < 0) day2--;
+        var fmt = function(h, mm) {
+          var pad = mm < 10 ? '0' : '';
+          if (h < 6) return '凌晨' + (h || 12) + ':' + pad + mm;
+          if (h < 12) return '上午' + (h || 12) + ':' + pad + mm;
+          if (h < 18) return '下午' + ((h - 12) || 12) + ':' + pad + mm;
+          return '晚上' + ((h - 12) || 12) + ':' + pad + mm;
+        };
+        var beijingLine = m[6] + '<strong class="maintenance-time-beijing maintenance-time-beijing-highlight">北京时间 (UTC +8): ' + month + '月' + day2 + '日 ' + fmt(h1, m1) + ' - ' + fmt(h2, m2) + '</strong>';
+        var replacement = m[1] + m[2] + '年' + m[3] + '月' + m[4] + '日' + m[5] + '\n' + beijingLine + '\n' + m[6] + m[7];
+        return text.slice(0, m.index) + replacement + text.slice(m.index + m[0].length);
+      }
       var maintenanceLoading = false;
       function loadMaintenance() {
         var content = document.getElementById('maintenanceContent');
@@ -1129,7 +1172,15 @@
               }
               var title = document.createElement('div');
               title.className = 'maintenance-title';
-              title.textContent = item.titleZh || item.title || '';
+              var titleStr = (item.titleZh || item.title || '').replace(/<[^>]+>/g, '').trim();
+              var lines = titleStr.split('\n').filter(function(s) { return s.trim(); });
+              if (lines.length >= 3 && lines[0].indexOf('维护') >= 0 && /^\d{4}/.test(lines[1])) {
+                titleStr = lines[2];
+              } else if (lines.length > 1) {
+                titleStr = lines[0];
+              }
+              if (titleStr.length > 120) titleStr = titleStr.slice(0, 117) + '...';
+              title.textContent = titleStr;
               wrap.appendChild(title);
               var timeBlock = document.createElement('div');
               timeBlock.className = 'maintenance-time';
@@ -1152,7 +1203,9 @@
               }
               var body = document.createElement('div');
               body.className = 'maintenance-body maintenance-body-collapsed';
-              body.innerHTML = (item.bodyZh || item.body || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\n/g, '<br>');
+              var bodyRaw = (item.bodyZh || item.body || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+              bodyRaw = injectBeijingTimeLine(bodyRaw);
+              body.innerHTML = bodyRaw.replace(/\n/g, '<br>');
               wrap.appendChild(body);
               if (expandBtn) {
                 expandBtn.addEventListener('click', function () {
