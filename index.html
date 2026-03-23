@@ -11,6 +11,7 @@
   <nav class="app-header">
     <a href="#name" class="app-tab active" data-panel="name">中文名起名器</a>
     <a href="#crystal" class="app-tab" data-panel="crystal">搬蛋小助手</a>
+    <a href="#hexa" class="app-tab" data-panel="hexa">六转计算器</a>
     <a href="#maintenance" class="app-tab" data-panel="maintenance">维护公告</a>
   </nav>
   <div class="float-deco left">
@@ -54,6 +55,10 @@
       <div id="loadErr" class="load-err"></div>
       <div class="chars-wrap" id="charsWrap"></div>
     </section>
+    <button type="button" class="back-to-top back-to-top-at-top" title="返回上方" aria-label="返回上方">
+      <span class="back-to-top-img"><img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt=""></span>
+      <span class="back-to-top-text">返回上方</span>
+    </button>
     <div class="footer-deco">
       <span class="sub">GMSK 伊桃</span>
     </div>
@@ -76,8 +81,11 @@
             <input type="text" id="charRemarkInput" placeholder="角色备注（可选）" class="char-remark-input" maxlength="20">
             <button class="add-char" id="addChar">添加角色</button>
             <button type="button" class="btn btn-secondary" id="btnLinkBackup">生成可恢复链接</button>
+            <button type="button" class="btn btn-secondary" id="btnExportTxt">导出到txt</button>
+            <button type="button" class="btn btn-secondary" id="btnImportTxt">从txt导入</button>
+            <input type="file" id="importTxtFile" accept=".txt" style="display:none">
           </div>
-          <p class="crystal-backup-hint">数据保存在浏览器本地，更新或换设备可能丢失。可使用「生成可恢复链接」保存到浏览器书签。<a href="crystal.html" target="_blank">单独打开搬蛋小助手</a></p>
+          <p class="crystal-backup-hint">数据保存在浏览器本地，更新或换设备可能丢失。可使用「导出到txt」或「生成可恢复链接」备份。<a href="crystal.html" target="_blank">单独打开搬蛋小助手</a></p>
         </div>
       </div>
       <div id="charList" class="char-list-grid"></div>
@@ -116,10 +124,97 @@
       <div id="weeklyLimitWarn" class="limit-warn" style="display:none;"></div>
       <div id="categories"></div>
     </section>
-    <button id="backToTop" class="back-to-top" title="返回上方">
-      <span class="back-to-top-img">
-        <img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt="">
-      </span>
+    <button type="button" class="back-to-top back-to-top-at-top" title="返回上方" aria-label="返回上方">
+      <span class="back-to-top-img"><img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt=""></span>
+      <span class="back-to-top-text">返回上方</span>
+    </button>
+    <div class="footer-deco">
+      <span class="sub">GMSK 伊桃</span>
+    </div>
+  </div>
+  </div>
+
+  <div id="panel-hexa" class="panel">
+  <div class="page-wrap page-wrap-hexa">
+    <div class="banner" role="img" aria-label="六转 HEXA">
+      <div class="banner-inner">
+        <span class="banner-title">六转 HEXA 计算器</span>
+      </div>
+    </div>
+    <p class="subtitle">输入各技能当前等级与目标等级，计算所需 Sol Erda 与 Sol Erda Fragment</p>
+    <section class="hexa-char-section char-section">
+      <div class="char-header">
+        <span class="char-name">角色列表</span>
+        <div class="char-header-row2">
+          <div class="add-char-wrap">
+            <input type="text" id="hexaCharRemarkInput" placeholder="角色备注（可选）" class="char-remark-input" maxlength="20">
+            <button class="add-char" id="hexaAddChar">添加角色</button>
+            <button type="button" class="btn btn-secondary" id="hexaBtnLinkBackup">生成可恢复链接</button>
+            <button type="button" class="btn btn-secondary" id="hexaBtnExportTxt">导出到txt</button>
+            <button type="button" class="btn btn-secondary" id="hexaBtnImportTxt">从txt导入</button>
+            <input type="file" id="hexaImportTxtFile" accept=".txt" style="display:none">
+          </div>
+          <p class="crystal-backup-hint">数据保存在浏览器本地，更新或换设备可能丢失。可使用「导出到txt」或「生成可恢复链接」备份。</p>
+        </div>
+      </div>
+      <div id="hexaCharList" class="char-list-grid"></div>
+      <div class="hexa-char-tabs-wrap">
+        <span class="batch-hint">点击角色卡片切换编辑</span>
+        <div class="hexa-char-tabs char-tabs" id="hexaCharTabs"></div>
+      </div>
+    </section>
+    <section>
+      <div class="hexa-target-row">
+        <label>全局目标等级：</label>
+        <input type="number" id="hexaDefaultTarget" min="1" max="30" value="30" class="hexa-target-input">
+        <span class="hexa-target-hint">（1–30，可单独覆盖每个技能）</span>
+      </div>
+      <div class="hexa-matrix-wrap">
+        <div class="hexa-matrix-header">
+          <span class="hexa-lock-hint">点击格子内锁形按钮可锁定/解锁</span>
+          <button type="button" class="hexa-mode-toggle" id="hexaModeToggle" title="切换显示">切换到目标等级</button>
+        </div>
+        <div class="hexa-matrix-canvas" id="hexaMatrixCanvas" style="background-image: url('assets/hexa-matrix-bg.png');">
+        <div class="hexa-slot" data-type="origin" data-idx="1" data-slot-key="origin-1" style="left:40%;top:34.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源1"><button type="button" class="hexa-slot-lock" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="origin" data-idx="2" data-slot-key="origin-2" style="left:25%;top:34.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源2"><button type="button" class="hexa-slot-lock" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="3" data-slot-key="origin-3" style="left:32.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源3"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="4" data-slot-key="origin-4" style="left:17.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源4"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="5" data-slot-key="origin-5" style="left:25%;top:10%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源5"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源5"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="6" data-slot-key="origin-6" style="left:11%;top:10%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源6"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源6"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="mastery" data-idx="1" data-slot-key="mastery-1" style="left:60.5%;top:34.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="精通1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="精通1"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="mastery" data-idx="2" data-slot-key="mastery-2" style="left:68%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="精通2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="精通2"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="mastery" data-idx="3" data-slot-key="mastery-3" style="left:82.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="精通3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="精通3"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="mastery" data-idx="4" data-slot-key="mastery-4" style="left:89.5%;top:10%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="精通4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="精通4"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="v" data-idx="1" data-slot-key="v-1" style="left:40%;top:65%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="V1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="V1"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="v" data-idx="2" data-slot-key="v-2" style="left:32.5%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="V2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="V2"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="v" data-idx="3" data-slot-key="v-3" style="left:17.5%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="V3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="V3"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="v" data-idx="4" data-slot-key="v-4" style="left:10.5%;top:90%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="V4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="V4"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="common" data-idx="1" data-slot-key="common-1" style="left:60.5%;top:65%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用1"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="common" data-idx="2" data-slot-key="common-2" style="left:68%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用2"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="common" data-idx="3" data-slot-key="common-3" style="left:82.5%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用3"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot hexa-slot-default-locked" data-type="common" data-idx="4" data-slot-key="common-4" style="left:89.5%;top:90%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用4"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+      </div>
+      </div>
+      <div class="hexa-total-wrap" id="hexaTotalWrap">
+        <div class="hexa-total-block">
+          <div class="hexa-total-label">总共需要</div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalNeededErda">0</span></div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda_Fragment.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalNeededFrag">0</span></div>
+        </div>
+        <div class="hexa-total-block">
+          <div class="hexa-total-label">已经获取</div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalObtainedErda">0</span></div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda_Fragment.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalObtainedFrag">0</span></div>
+        </div>
+        <div class="hexa-total-block">
+          <div class="hexa-total-label">还需要</div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalErda">0</span></div>
+          <div class="hexa-total-row"><img src="assets/Sol_Erda_Fragment.png" alt="" class="hexa-total-icon"><span class="hexa-total-value" id="hexaTotalFrag">0</span></div>
+        </div>
+      </div>
+    </section>
+    <button type="button" class="back-to-top back-to-top-at-top" title="返回上方" aria-label="返回上方">
+      <span class="back-to-top-img"><img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt=""></span>
       <span class="back-to-top-text">返回上方</span>
     </button>
     <div class="footer-deco">
@@ -141,6 +236,10 @@
       <div id="maintenanceLoadErr" class="load-err"></div>
       <div id="maintenanceLoading" class="maintenance-loading">加载中...</div>
     </section>
+    <button type="button" class="back-to-top back-to-top-at-top" title="返回上方" aria-label="返回上方">
+      <span class="back-to-top-img"><img src="assets/720x1480_angelic-buster_wallpapers_v251.jpg" alt=""></span>
+      <span class="back-to-top-text">返回上方</span>
+    </button>
     <div class="footer-deco">
       <span class="sub">GMSK 伊桃</span>
     </div>
@@ -358,9 +457,11 @@
       }
       function init() {
         var hash = (location.hash || '#name').replace(/^#/, '');
-        var id = (hash === 'crystal' || hash === 'maintenance') ? hash : 'name';
+        var id = (hash === 'crystal' || hash === 'maintenance' || hash === 'hexa' || hash.startsWith('hexa&')) ? (hash.indexOf('hexa') === 0 ? 'hexa' : hash) : 'name';
         showPanel(id);
-        if (location.hash !== '#' + id) location.hash = id;
+        if (location.hash !== '#' + id && !(id === 'hexa' && (location.hash || '').indexOf('hexab=') >= 0)) {
+          location.hash = id;
+        }
       }
       function bindTabs() {
         var tabEls = document.querySelectorAll('.app-tab');
@@ -382,6 +483,24 @@
       }
       window.addEventListener('hashchange', init);
       window.addEventListener('load', init);
+    })();
+  </script>
+  <script>
+    (function () {
+      var THRESHOLD = 80;
+      function updateBackToTop() {
+        var y = window.scrollY || document.documentElement.scrollTop || 0;
+        document.querySelectorAll('.back-to-top').forEach(function (btn) {
+          if (y > THRESHOLD) btn.classList.remove('back-to-top-at-top');
+          else btn.classList.add('back-to-top-at-top');
+        });
+      }
+      document.querySelectorAll('.back-to-top').forEach(function (btn) {
+        btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      });
+      window.addEventListener('scroll', updateBackToTop, { passive: true });
+      window.addEventListener('load', updateBackToTop);
+      if (document.readyState !== 'loading') updateBackToTop();
     })();
   </script>
   <script>
@@ -422,6 +541,449 @@
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSidebarToggle);
       else initSidebarToggle();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var HEXA_COSTS = {
+        origin: [
+          [5,100],[1,30],[1,35],[1,40],[2,45],[2,50],[2,55],[3,60],[3,65],[10,200],
+          [3,80],[3,90],[4,100],[4,110],[4,120],[4,130],[4,140],[4,150],[5,160],[15,350],
+          [5,170],[5,180],[5,190],[5,200],[5,210],[6,220],[6,230],[6,240],[7,250],[20,500]
+        ],
+        mastery: [
+          [3,50],[1,15],[1,18],[1,20],[1,23],[1,25],[1,28],[2,30],[2,33],[5,100],
+          [2,40],[2,45],[2,50],[2,55],[2,60],[2,65],[2,70],[2,75],[3,80],[8,175],
+          [3,85],[3,90],[3,95],[3,100],[3,105],[3,110],[3,115],[3,120],[4,125],[10,250]
+        ],
+        v: [
+          [4,75],[1,23],[1,27],[1,30],[2,34],[2,38],[2,42],[3,45],[3,49],[8,150],
+          [3,60],[3,68],[3,75],[3,83],[3,90],[3,98],[3,105],[3,113],[4,120],[12,263],
+          [4,128],[4,135],[4,143],[4,150],[4,158],[5,165],[5,173],[5,180],[6,188],[15,375]
+        ],
+        common: [
+          [7,125],[2,38],[2,44],[2,50],[3,57],[3,63],[3,69],[5,75],[5,82],[14,300],
+          [5,110],[5,124],[6,138],[6,152],[6,165],[6,179],[6,193],[6,207],[7,220],[17,525],
+          [7,234],[7,248],[7,262],[7,275],[7,289],[9,303],[9,317],[9,330],[10,344],[20,750]
+        ]
+      };
+      var HEXA_STORAGE_KEY = 'gms-hexa-characters';
+      var HEXA_LOCK_KEY = 'gms-hexa-slot-locks';
+      var hexaCharacters = [];
+      var selectedHexaCharIndex = 0;
+      function calcCost(type, fromLv, toLv) {
+        var t = HEXA_COSTS[type];
+        if (!t || fromLv >= toLv) return { erda: 0, frag: 0 };
+        var erda = 0, frag = 0;
+        for (var i = fromLv; i < toLv && i < 30; i++) {
+          erda += t[i][0];
+          frag += t[i][1];
+        }
+        return { erda: erda, frag: frag };
+      }
+      function getHexaDataFromUI() {
+        var defaultTarget = parseInt(document.getElementById('hexaDefaultTarget').value, 10) || 30;
+        defaultTarget = Math.max(1, Math.min(30, defaultTarget));
+        var slots = {};
+        document.querySelectorAll('.hexa-slot').forEach(function (slot) {
+          var key = slot.getAttribute('data-slot-key');
+          var curIn = slot.querySelector('.hexa-cur');
+          var tgtIn = slot.querySelector('.hexa-tgt');
+          if (key && curIn && tgtIn) {
+            var cur = parseInt(curIn.value, 10) || 0;
+            var tgt = (tgtIn.value !== '' && tgtIn.value !== null) ? (parseInt(tgtIn.value, 10) || defaultTarget) : defaultTarget;
+            slots[key] = { cur: cur, tgt: Math.max(1, Math.min(30, tgt)) };
+          }
+        });
+        return { defaultTarget: defaultTarget, slots: slots };
+      }
+      function setHexaDataToUI(data) {
+        data = data || {};
+        var dt = document.getElementById('hexaDefaultTarget');
+        if (dt) dt.value = data.defaultTarget || 30;
+        document.querySelectorAll('.hexa-slot').forEach(function (slot) {
+          var key = slot.getAttribute('data-slot-key');
+          var s = data.slots && data.slots[key];
+          var curIn = slot.querySelector('.hexa-cur');
+          var tgtIn = slot.querySelector('.hexa-tgt');
+          if (curIn) curIn.value = s ? s.cur : 0;
+          if (tgtIn) tgtIn.value = (s && s.tgt != null) ? s.tgt : '';
+        });
+      }
+      function saveCurrentChar() {
+        if (hexaCharacters[selectedHexaCharIndex]) {
+          hexaCharacters[selectedHexaCharIndex].data = getHexaDataFromUI();
+        }
+      }
+      function loadChar(i) {
+        if (i < 0 || i >= hexaCharacters.length) return;
+        saveCurrentChar();
+        selectedHexaCharIndex = i;
+        var ch = hexaCharacters[i];
+        setHexaDataToUI(ch.data);
+        renderHexaCharList();
+        updateHexa();
+      }
+      function saveHexaToStorage() {
+        try {
+          localStorage.setItem(HEXA_STORAGE_KEY, JSON.stringify({ characters: hexaCharacters, selectedIndex: selectedHexaCharIndex }));
+        } catch (e) {}
+      }
+      function loadHexaFromStorage() {
+        try {
+          var raw = localStorage.getItem(HEXA_STORAGE_KEY);
+          if (!raw) return;
+          var data = JSON.parse(raw);
+          if (data.characters && data.characters.length) {
+            hexaCharacters = data.characters;
+            selectedHexaCharIndex = Math.min(data.selectedIndex || 0, hexaCharacters.length - 1);
+          }
+        } catch (e) {}
+      }
+      function loadHexaFromHash() {
+        try {
+          var hash = location.hash || '';
+          var m = hash.match(/[#&]hexab=([A-Za-z0-9+/=_-]+)/);
+          if (!m) return null;
+          var b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) b64 += '=';
+          var decoded = decodeURIComponent(escape(atob(b64)));
+          var data = JSON.parse(decoded);
+          return data?.characters?.length ? data : null;
+        } catch (e) { return null; }
+      }
+      function calcHexaCompletedForChar(data) {
+        if (!data || !data.slots) return { erda: 0, frag: 0 };
+        var erda = 0, frag = 0;
+        var slotKeys = ['origin-1','origin-2','origin-3','origin-4','origin-5','origin-6','mastery-1','mastery-2','mastery-3','mastery-4','v-1','v-2','v-3','v-4','common-1','common-2','common-3','common-4'];
+        var typeMap = { 'origin': 'origin', 'mastery': 'mastery', 'v': 'v', 'common': 'common' };
+        var lockState = getLockState();
+        for (var k = 0; k < slotKeys.length; k++) {
+          var key = slotKeys[k];
+          if (lockState[key]) continue;
+          var parts = key.split('-');
+          var type = typeMap[parts[0]];
+          var s = data.slots[key];
+          if (!s) continue;
+          var cur = s.cur || 0;
+          if (cur > 0) {
+            var c = calcCost(type, 0, cur);
+            erda += c.erda;
+            frag += c.frag;
+          }
+        }
+        return { erda: erda, frag: frag };
+      }
+      function calcHexaTotalForChar(data) {
+        if (!data || !data.slots) return { erda: 0, frag: 0 };
+        var dt = data.defaultTarget || 30;
+        dt = Math.max(1, Math.min(30, dt));
+        var erda = 0, frag = 0;
+        var slotKeys = ['origin-1','origin-2','origin-3','origin-4','origin-5','origin-6','mastery-1','mastery-2','mastery-3','mastery-4','v-1','v-2','v-3','v-4','common-1','common-2','common-3','common-4'];
+        var typeMap = { 'origin': 'origin', 'mastery': 'mastery', 'v': 'v', 'common': 'common' };
+        var lockState = getLockState();
+        for (var k = 0; k < slotKeys.length; k++) {
+          var key = slotKeys[k];
+          if (lockState[key]) continue;
+          var parts = key.split('-');
+          var type = typeMap[parts[0]];
+          var s = data.slots[key];
+          if (!s) continue;
+          var cur = s.cur || 0;
+          var tgt = (s.tgt != null && s.tgt !== '') ? (s.tgt || dt) : dt;
+          tgt = Math.max(1, Math.min(30, tgt));
+          if (cur < tgt) {
+            var c = calcCost(type, cur, tgt);
+            erda += c.erda;
+            frag += c.frag;
+          }
+        }
+        return { erda: erda, frag: frag };
+      }
+      function formatHexaNum(n) {
+        if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+        if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+        return String(n);
+      }
+      function updateHexa() {
+        var defaultTarget = parseInt(document.getElementById('hexaDefaultTarget').value, 10) || 30;
+        defaultTarget = Math.max(1, Math.min(30, defaultTarget));
+        var neededErda = 0, neededFrag = 0;
+        var obtainedErda = 0, obtainedFrag = 0;
+        var remainErda = 0, remainFrag = 0;
+        document.querySelectorAll('.hexa-slot').forEach(function (slot) {
+          if (slot.classList.contains('hexa-slot-locked')) return;
+          var type = slot.getAttribute('data-type');
+          var curIn = slot.querySelector('.hexa-cur');
+          var tgtIn = slot.querySelector('.hexa-tgt');
+          var cur = parseInt(curIn.value, 10) || 0;
+          var tgt = (tgtIn.value !== '' && tgtIn.value !== null) ? (parseInt(tgtIn.value, 10) || defaultTarget) : defaultTarget;
+          tgt = Math.max(1, Math.min(30, tgt));
+          var cNeeded = calcCost(type, 0, tgt);
+          neededErda += cNeeded.erda;
+          neededFrag += cNeeded.frag;
+          if (cur > 0) {
+            var cObtained = calcCost(type, 0, cur);
+            obtainedErda += cObtained.erda;
+            obtainedFrag += cObtained.frag;
+          }
+          if (cur < tgt) {
+            var cRemain = calcCost(type, cur, tgt);
+            remainErda += cRemain.erda;
+            remainFrag += cRemain.frag;
+          }
+        });
+        var ne = document.getElementById('hexaTotalNeededErda');
+        var nf = document.getElementById('hexaTotalNeededFrag');
+        var oe = document.getElementById('hexaTotalObtainedErda');
+        var of = document.getElementById('hexaTotalObtainedFrag');
+        var re = document.getElementById('hexaTotalErda');
+        var rf = document.getElementById('hexaTotalFrag');
+        if (ne) ne.textContent = neededErda;
+        if (nf) nf.textContent = neededFrag;
+        if (oe) oe.textContent = obtainedErda;
+        if (of) of.textContent = obtainedFrag;
+        if (re) re.textContent = remainErda;
+        if (rf) rf.textContent = remainFrag;
+      }
+      function getLockState() {
+        try {
+          var raw = localStorage.getItem(HEXA_LOCK_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch (e) { return {}; }
+      }
+      function saveLockState(state) {
+        try { localStorage.setItem(HEXA_LOCK_KEY, JSON.stringify(state)); } catch (e) {}
+      }
+      function applySlotLock(slot, locked) {
+        var key = slot.getAttribute('data-slot-key');
+        var btn = slot.querySelector('.hexa-slot-lock');
+        if (locked) {
+          slot.classList.add('hexa-slot-locked');
+          if (btn) { btn.classList.add('locked'); btn.title = '点击解锁'; btn.setAttribute('aria-label', '解锁'); }
+        } else {
+          slot.classList.remove('hexa-slot-locked');
+          if (btn) { btn.classList.remove('locked'); btn.title = '点击锁定'; btn.setAttribute('aria-label', '锁定'); }
+        }
+        var state = getLockState();
+        state[key] = locked;
+        saveLockState(state);
+        updateHexa();
+      }
+      function renderHexaCharTabs() {
+        var tabs = document.getElementById('hexaCharTabs');
+        if (!tabs) return;
+        tabs.innerHTML = hexaCharacters.map(function (ch, i) {
+          var active = i === selectedHexaCharIndex ? ' active' : '';
+          var esc = (ch.name || '').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+          return '<button class="char-tab hexa-char-tab' + active + '" data-idx="' + i + '">' + esc + '</button>';
+        }).join('');
+        tabs.querySelectorAll('.hexa-char-tab').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var i = parseInt(btn.dataset.idx, 10);
+            loadChar(i);
+            renderHexaCharTabs();
+            saveHexaToStorage();
+          });
+        });
+      }
+      function renderHexaCharList() {
+        saveCurrentChar();
+        var list = document.getElementById('hexaCharList');
+        if (!list) return;
+        list.innerHTML = '';
+        hexaCharacters.forEach(function (ch, i) {
+          var completed = calcHexaCompletedForChar(ch.data);
+          var div = document.createElement('div');
+          div.className = 'char-list-item' + (i === selectedHexaCharIndex ? ' selected' : '');
+          div.dataset.idx = String(i);
+          var esc = (ch.name || '').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+          var completedHtml = '<div class="hexa-char-completed"><span class="hexa-char-stat"><img src="assets/Sol_Erda.png" alt="" class="hexa-char-icon">' + completed.erda + '</span><span class="hexa-char-stat"><img src="assets/Sol_Erda_Fragment.png" alt="" class="hexa-char-icon">' + formatHexaNum(completed.frag) + '</span></div>';
+          div.innerHTML = '<span class="char-name char-name-editable" data-idx="' + i + '" title="点击修改备注">' + esc + '</span><div class="char-item-bottom">' + completedHtml + (hexaCharacters.length > 1 ? '<button class="remove-char" data-idx="' + i + '">删除</button>' : '') + '</div>';
+          list.appendChild(div);
+          div.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-char') || e.target.classList.contains('char-name-editable')) return;
+            var idx = parseInt(div.dataset.idx, 10);
+            loadChar(idx);
+            saveHexaToStorage();
+          });
+          var nameEl = div.querySelector('.char-name-editable');
+          if (nameEl) {
+            nameEl.addEventListener('click', function (e) {
+              e.stopPropagation();
+              var input = document.createElement('input');
+              input.type = 'text';
+              input.value = ch.name;
+              input.className = 'char-name-input';
+              input.maxLength = 20;
+              nameEl.replaceWith(input);
+              input.focus();
+              input.select();
+              input.addEventListener('blur', function () {
+                var v = input.value.trim();
+                if (v) ch.name = v;
+                renderHexaCharTabs();
+                renderHexaCharList();
+                saveHexaToStorage();
+              });
+              input.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') input.blur(); ev.stopPropagation(); });
+            });
+          }
+        });
+        list.querySelectorAll('.remove-char').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var i = parseInt(btn.dataset.idx, 10);
+            hexaCharacters.splice(i, 1);
+            if (selectedHexaCharIndex >= hexaCharacters.length) selectedHexaCharIndex = Math.max(0, hexaCharacters.length - 1);
+            if (hexaCharacters.length) loadChar(selectedHexaCharIndex);
+            else setHexaDataToUI({ defaultTarget: 30, slots: {} });
+            renderHexaCharTabs();
+            renderHexaCharList();
+            saveHexaToStorage();
+            updateHexa();
+          });
+        });
+      }
+      function hexaChange() {
+        saveCurrentChar();
+        saveHexaToStorage();
+        updateHexa();
+      }
+      function bindHexa() {
+        var savedFromHash = loadHexaFromHash();
+        if (savedFromHash && savedFromHash.characters && savedFromHash.characters.length) {
+          hexaCharacters = savedFromHash.characters;
+          selectedHexaCharIndex = Math.min(savedFromHash.selectedIndex || 0, hexaCharacters.length - 1);
+          saveHexaToStorage();
+        } else {
+          loadHexaFromStorage();
+        }
+        if (!hexaCharacters.length) {
+          hexaCharacters = [{ id: Date.now(), name: '角色 1', data: { defaultTarget: 30, slots: {} } }];
+          selectedHexaCharIndex = 0;
+          saveHexaToStorage();
+        }
+        var defaultTarget = document.getElementById('hexaDefaultTarget');
+        var canvas = document.getElementById('hexaMatrixCanvas');
+        var toggle = document.getElementById('hexaModeToggle');
+        var slots = document.querySelectorAll('.hexa-slot');
+        var lockState = getLockState();
+        function setMode(showCur) {
+          canvas.classList.toggle('hexa-show-cur', showCur);
+          canvas.classList.toggle('hexa-show-tgt', !showCur);
+          if (toggle) toggle.textContent = showCur ? '切换到目标等级' : '切换到当前等级';
+        }
+        slots.forEach(function (slot) {
+          var key = slot.getAttribute('data-slot-key');
+          var isDefaultLocked = slot.classList.contains('hexa-slot-default-locked');
+          var userLocked = lockState[key];
+          var locked = (userLocked !== undefined) ? userLocked : isDefaultLocked;
+          applySlotLock(slot, locked);
+        });
+        slots.forEach(function (slot) {
+          var btn = slot.querySelector('.hexa-slot-lock');
+          if (btn) {
+            btn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              applySlotLock(slot, !slot.classList.contains('hexa-slot-locked'));
+            });
+          }
+          var cur = slot.querySelector('.hexa-cur');
+          var tgt = slot.querySelector('.hexa-tgt');
+          if (cur) cur.addEventListener('input', hexaChange);
+          if (tgt) tgt.addEventListener('input', hexaChange);
+        });
+        if (toggle) toggle.addEventListener('click', function () { setMode(canvas.classList.contains('hexa-show-tgt')); });
+        setMode(true);
+        if (defaultTarget) defaultTarget.addEventListener('input', hexaChange);
+        loadChar(selectedHexaCharIndex);
+        renderHexaCharTabs();
+        renderHexaCharList();
+        document.getElementById('hexaBtnLinkBackup')?.addEventListener('click', function () {
+          saveCurrentChar();
+          var data = { characters: hexaCharacters, selectedIndex: selectedHexaCharIndex };
+          var json = JSON.stringify(data);
+          if (json.length > 8000) {
+            alert('数据较多，链接可能过长。请减少角色数量后再试。');
+            return;
+          }
+          try {
+            var b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            var topHref = (window.top !== window.self && window.top.location) ? window.top.location.href : location.href;
+            var base = topHref.replace(/#.*$/, '');
+            var url = base + '#hexa&hexab=' + b64;
+            if (navigator.clipboard?.writeText) {
+              navigator.clipboard.writeText(url).then(function () { alert('已复制链接。保存到书签后，访问该链接即可恢复数据。'); }).catch(function () { prompt('请复制以下链接保存：', url); });
+            } else {
+              prompt('请复制以下链接保存到书签：', url);
+            }
+          } catch (e) {
+            alert('生成失败: ' + (e.message || ''));
+          }
+        });
+        document.getElementById('hexaAddChar')?.addEventListener('click', function () {
+          saveCurrentChar();
+          setHexaDataToUI({ defaultTarget: 30, slots: {} });
+          var input = document.getElementById('hexaCharRemarkInput');
+          var name = (input && input.value.trim()) || '角色 ' + (hexaCharacters.length + 1);
+          hexaCharacters.push({ id: Date.now(), name: name, data: { defaultTarget: 30, slots: {} } });
+          if (input) input.value = '';
+          selectedHexaCharIndex = hexaCharacters.length - 1;
+          loadChar(selectedHexaCharIndex);
+          renderHexaCharTabs();
+          renderHexaCharList();
+          saveHexaToStorage();
+        });
+        document.getElementById('hexaCharRemarkInput')?.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') document.getElementById('hexaAddChar')?.click();
+        });
+        document.getElementById('hexaBtnExportTxt')?.addEventListener('click', function () {
+          saveCurrentChar();
+          var data = { characters: hexaCharacters, selectedIndex: selectedHexaCharIndex, exportedAt: new Date().toISOString() };
+          var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'text/plain;charset=utf-8' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'gms-hexa-backup-' + new Date().toISOString().slice(0, 10) + '.txt';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+        document.getElementById('hexaBtnImportTxt')?.addEventListener('click', function () {
+          document.getElementById('hexaImportTxtFile').click();
+        });
+        document.getElementById('hexaImportTxtFile')?.addEventListener('change', function (e) {
+          var file = e.target.files?.[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            try {
+              var data = JSON.parse(reader.result);
+              if (!data.characters || !Array.isArray(data.characters) || !data.characters.length) {
+                alert('备份格式无效');
+                return;
+              }
+              hexaCharacters = data.characters;
+              selectedHexaCharIndex = Math.min(data.selectedIndex || 0, hexaCharacters.length - 1);
+              loadChar(selectedHexaCharIndex);
+              renderHexaCharTabs();
+              renderHexaCharList();
+              saveHexaToStorage();
+              alert('导入成功');
+            } catch (err) {
+              alert('导入失败: ' + (err.message || '格式错误'));
+            }
+            e.target.value = '';
+          };
+          reader.readAsText(file, 'UTF-8');
+        });
+        window.addEventListener('beforeunload', function () { saveCurrentChar(); saveHexaToStorage(); });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindHexa);
+      } else {
+        bindHexa();
+      }
     })();
   </script>
 
@@ -655,7 +1217,7 @@
             const diffHtml = diffs.map(d => `<button class="diff-btn ${d}" data-diff="${d}">${d}</button>`).join('');
             const bossImg = getBossImagePath(boss);
             const bossImgHtml = bossImg ? `<img src="${bossImg}" alt="" class="boss-thumb">` : '';
-            row.innerHTML = `<span class="boss-cell">${bossImgHtml}<span class="boss-name">${boss}</span></span><div class="difficulty-group">${diffHtml}</div><select class="people-select" data-boss="${boss}"></select><div class="lock-toggle" data-boss="${boss}" role="button" tabindex="0" title="锁定后自动计算不会覆盖"><span class="lock-toggle-slider"><svg class="lock-icon lock-closed" viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 1 1 8 0v4M8 11H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2V11"/></svg><svg class="lock-icon lock-open" viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 1 1 8 0M8 11h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h2"/></svg></span><span class="lock-toggle-label lock-label">LOCK</span><span class="lock-toggle-label unlock-label">UNLOCK</span></div><span class="boss-meso">0</span>`;
+            row.innerHTML = `<span class="boss-cell">${bossImgHtml}<span class="boss-name">${boss}</span></span><div class="difficulty-group">${diffHtml}</div><select class="people-select" data-boss="${boss}"></select><div class="lock-toggle" data-boss="${boss}" role="button" tabindex="0" title="锁定后自动计算不会覆盖"><span class="lock-toggle-slider"><img src="assets/locker.png" alt="锁" class="lock-icon lock-closed"><img src="assets/unlock.png" alt="解锁" class="lock-icon lock-open"></span><span class="lock-toggle-label lock-label">LOCK</span><span class="lock-toggle-label unlock-label">UNLOCK</span></div><span class="boss-meso">0</span>`;
             grid.appendChild(row);
             diffs.forEach(d => {
               const btn = row.querySelector(`[data-diff="${d}"]`);
@@ -1083,7 +1645,52 @@
           alert('生成失败: ' + (e.message || ''));
         }
       });
-      document.getElementById('backToTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      document.getElementById('btnExportTxt')?.addEventListener('click', () => {
+        const data = { characters, selectedCharIndices, characterPowerOrder, exportedAt: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'gms-crystal-backup-' + new Date().toISOString().slice(0, 10) + '.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+      document.getElementById('btnImportTxt')?.addEventListener('click', () => {
+        document.getElementById('importTxtFile')?.click();
+      });
+      document.getElementById('importTxtFile')?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          doRestore(reader.result);
+          e.target.value = '';
+        };
+        reader.readAsText(file, 'UTF-8');
+      });
+      function doRestore(jsonStr) {
+        try {
+          const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+          if (!data.characters || !Array.isArray(data.characters) || data.characters.length === 0) {
+            alert('备份格式无效');
+            return false;
+          }
+          characters = data.characters;
+          characters.forEach(ch => { if (!ch.hasOwnProperty('maxBoss')) ch.maxBoss = null; });
+          selectedCharIndices = (data.selectedCharIndices || []).filter(i => i >= 0 && i < characters.length);
+          if (selectedCharIndices.length === 0) selectedCharIndices = [0];
+          characterPowerOrder = (data.characterPowerOrder || []).filter(i => i >= 0 && i < characters.length);
+          ensurePowerOrder();
+          renderCharTabs();
+          renderBossGrids();
+          renderChars();
+          updateSummary();
+          saveToStorage();
+          return true;
+        } catch (err) {
+          alert('恢复失败: ' + (err.message || '格式错误'));
+          return false;
+        }
+      }
       window.addEventListener('beforeunload', () => saveToStorage());
       loadData();
     })();
