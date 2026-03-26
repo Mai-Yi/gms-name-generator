@@ -1701,6 +1701,7 @@
         var re = /(维护时间[：:]?\s*\n\n?|时间详情[：:]?\s*\n\n?|时间对照[：:]?\s*\n\n?|Times[：:]?\s*\n\n?)(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日([^\n]*)\n\s*(\*?\s*)([^\n]*(?:\(UTC\s*([+-]?)\s*(\d+)\))[^\n]*)/;
         var m = text.match(re);
         if (!m) return text;
+        if (/北京/.test(m[7] || '')) return text;
         var utcSign = (m[8] || '-') === '-' ? -1 : 1;
         var utcOffset = utcSign * parseInt(m[9], 10);
         var hourDiff = 8 - utcOffset;

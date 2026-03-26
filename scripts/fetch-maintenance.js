@@ -41,6 +41,38 @@ async function fetchHtml(url) {
   return res.text();
 }
 
+async function scrapeMaintenanceLinksFromPage(page) {
+  return page.evaluate(() => {
+    const base = 'https://www.nexon.com';
+    const seen = new Set();
+    const out = [];
+    document.querySelectorAll('a[href*="/maplestory/news/maintenance/"]').forEach((a) => {
+      let href = a.getAttribute('href') || '';
+      if (!href || href.startsWith('#')) return;
+      try {
+        const u = href.startsWith('http') ? new URL(href) : new URL(href, base);
+        const path = u.pathname.split('?')[0];
+        if (!path.includes('/maintenance/')) return;
+        if (seen.has(path)) return;
+        seen.add(path);
+        const mid = path.match(/\/maintenance\/(\d+)\//);
+        const id = mid ? mid[1] : path;
+        let title = (a.innerText || '').trim().replace(/\s+/g, ' ');
+        if (title.length < 2) title = path.split('/').filter(Boolean).pop() || path;
+        out.push({
+          id: String(id),
+          title: title.slice(0, 200),
+          url: base + path,
+          startTime: '',
+          endTime: '',
+          body: '',
+        });
+      } catch (_) {}
+    });
+    return out;
+  });
+}
+
 async function fetchWithPuppeteer(url, browser, opts) {
   const { dismissModal } = opts || {};
   let puppeteer;
@@ -56,8 +88,9 @@ async function fetchWithPuppeteer(url, browser, opts) {
   try {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 2500));
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 90000 });
+    await page.waitForSelector('a[href*="/maplestory/news/maintenance/"]', { timeout: 30000 }).catch(() => {});
+    await new Promise(r => setTimeout(r, 2000));
     let html = '';
     let extractedBody = '';
     try {
@@ -88,7 +121,11 @@ async function fetchWithPuppeteer(url, browser, opts) {
     } catch (e) {
       if (!/context was destroyed|Target closed|navigation/i.test(String(e))) throw e;
     }
-    return { html, extractedBody };
+    let domItems = [];
+    try {
+      domItems = await scrapeMaintenanceLinksFromPage(page);
+    } catch (_) {}
+    return { html, extractedBody, domItems };
   } finally {
     if (ownBrowser) await browser.close();
   }
@@ -224,7 +261,20 @@ function extractHeadlineFromBody(body) {
 
 const TITLE_TRANSLATE_SYSTEM = 'Translate the following game maintenance article headline to Simplified Chinese. Output ONLY the translated headline, one line, no prefix, no date, no description. Examples: "V.267 Known Issues" -> "V.267 版本已知问题", "[Completed] Scheduled Game Update - March 18, 2026" -> "[已完成] 计划游戏更新 - 2026年3月18日".';
 
-const TRANSLATE_SYSTEM = 'Translate the following English game maintenance notice to Simplified Chinese. Keep the tone professional. Rules: (1) For any time mentioned (PDT, EDT, UTC, CET, etc.), add Beijing time with full date in parentheses right after it, wrapped in <strong class="maintenance-time-beijing"></strong>, e.g. "3:18 PM PDT (<strong class="maintenance-time-beijing">北京时间 2026年3月20日 6:18</strong>)". Always use the specific date (year month day), never use "次日". (2) For the maintenance times section (维护时间/时间详情/Times), use format: header, then date line, then list each timezone with asterisk prefix like "* 太平洋夏令时 (UTC -7): 下午1:00 - 下午3:00". (3) Keep server/world names in English: Luna, Solis, Scania, Bera, Hyperion, Kronos, NA Challenger World, EU Challenger World, One-Punch Man Special World, Heroic Worlds, etc. Output only the translation, no explanations.';
+const TRANSLATE_SYSTEM = `Translate the following English game maintenance notice to Simplified Chinese. Keep the tone professional.
+
+Rules:
+(1) Outside the multi-line "Times" block: for inline times (PDT, EDT, UTC, CET, etc.), add Beijing time in parentheses right after, wrapped in <strong class="maintenance-time-beijing"></strong>, e.g. "3:18 PM PDT (<strong class="maintenance-time-beijing">北京时间 2026年3月20日 6:18</strong>)". Use specific dates (year month day), never use "次日" alone without date.
+
+(2) For the maintenance times section (heading such as 维护时间详情、时间详情、时间对照、Times:): after the date line (e.g. "2026年3月26日，星期四"), output ONLY this structure:
+    First bullet MUST be Beijing only, with red highlight class:
+      * <strong class="maintenance-time-beijing maintenance-time-beijing-highlight">北京时间 (UTC +8): [month]月[day]日 [start] - [end; include next-day date if needed]</strong>
+    Use Chinese time words (凌晨/上午/下午/晚上) and colon times like 8:00.
+    Second bullet onward: ONLY the source timezones in the SAME ORDER as the English "Times" block (PDT, EDT, CET, AEDT, etc.). Translate zone names to Chinese, keep (UTC ±n). Each line one asterisk line, e.g. "* 太平洋夏令时 (UTC -7): 凌晨5:00 - 上午11:00". No extra parentheses with 北京时间 on these lines.
+
+(3) Keep server/world names in English: Luna, Solis, Scania, Bera, Hyperion, Kronos, NA Challenger World, EU Challenger World, One-Punch Man Special World, Heroic Worlds, etc.
+
+Output only the translation, no explanations.`;
 
 async function translateWithDeepSeek(text, apiKey, opts = {}) {
   if (!text || !apiKey) return text;
@@ -331,6 +381,10 @@ async function main() {
       const listRes = await fetchWithPuppeteer(MAINTENANCE_URL, browser);
       html = listRes?.html || listRes;
       if (html) items = parseMaintenanceList(html);
+      if (items.length === 0 && listRes?.domItems?.length) {
+        items = listRes.domItems;
+        console.log('Parsed', items.length, 'maintenance links from DOM.');
+      }
     } catch (e) {
       console.warn('Puppeteer failed:', e.message);
     }
@@ -382,6 +436,11 @@ async function main() {
     const raw = rawItems[i];
     const cached = forceFetch ? null : existing.items.find(e => sameIds(raw, e));
     builtItems.push(await buildItem(raw, cached, needDeepSeek ? apiKey : null));
+  }
+
+  if (builtItems.length === 0 && existing.items && existing.items.length > 0) {
+    console.warn('Built zero items (fetch/parse failed). Keeping existing file:', DATA_PATH, '(' + existing.items.length + ' items).');
+    process.exit(0);
   }
 
   const output = {
