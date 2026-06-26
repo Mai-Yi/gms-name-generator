@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-06-26T18:02:27.612Z",
+  "updatedAt": "2026-06-26T21:41:58.852Z",
   "items": [
+    {
+      "id": "42342unscheduled-channel-maintenance-june-26-2026",
+      "title": "maintenanceJun 26, 2026Unscheduled Channel Maintenance - June 26, 2026We will be performing a channel maintenance today, June 26, 2026 at XX:XX AM PDT.",
+      "titleZh": "2026年6月26日",
+      "url": "https://www.nexon.com/maplestory/news/maintenance/42342/unscheduled-channel-maintenance-june-26-2026",
+      "startTime": "",
+      "endTime": "",
+      "startTimeBeijing": "",
+      "endTimeBeijing": "",
+      "body": "MAINTENANCE\nJun 26, 2026\nUNSCHEDULED CHANNEL MAINTENANCE - JUNE 26, 2026\n\nWe will be performing a channel maintenance today, June 26, 2026 at 2:30 PM PDT (5:30 PM EDT / 11:30 PM CEST / 7:30 AM AEST June 27). We anticipate the maintenance to last approximately 2.5 hours, concluding around 5:00 PM June 26 PDT (8:00 PM EDT/ 2:00 AM CEST June 27/ 10:00 AM AEST June 27).\n\nTimes:\n\nFriday, June 26, 2026\nPDT (UTC -7): 2:30 PM - 5:00 PM\nEDT (UTC -4): 5:30 PM - 8:00 PM\nCEST (UTC +2): 11:30 PM June 26 - 2:00 AM June 27\nAEST (UTC +10): 7:30 AM June 27 - 10:00 AM June 27\n\n\nWhat will be unavailable:\n\nGroup A\n\nChannels 1-5, 11-15 on Luna and Solis\nChannel 1-15 on Scania, Bera, and Hyperion\nChannel 1-10 on NA Challenger World-Interactive\nChannels 1-20 on Kronos\nChannels 1-30 NA Challenger World-Heroic\nChannel 1-5 on EU Challenger World-Interactive and EU Challenger World-Heroic\nCross World Party Quest\nGroup B\n\nPlease allow some time when moving between channels.\nChannels 6-10, 16-20 on Luna and Solis\nChannels 16-30 on Scania, Bera, and Hyperion\nChannels 11-20 on NA Challenger World-Interactive\nChannels 21-40 on Kronos\nChannels 31-60 NA Challenger World-Heroic\nChannel 6-10 on EU Challenger World-Interactive and EU Challenger World-Heroic\n\nPlease restart your client once maintenance has been completed to ensure you receive the latest update.",
+      "bodyZh": "维护公告  \n2026年6月26日  \n2026年6月26日——非计划频道维护  \n\n我们将于2026年6月26日太平洋夏令时下午2:30（美国东部夏令时下午5:30 / 中欧夏令时晚上11:30 / 澳大利亚东部标准时间6月27日上午7:30）进行频道维护。预计维护时长约2.5小时，于太平洋夏令时6月26日下午5:00左右结束（美国东部夏令时晚上8:00 / 中欧夏令时6月27日凌晨2:00 / 澳大利亚东部标准时间6月27日上午10:00）。  \n\n时间详情：  \n\n2026年6月26日，星期五  \n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 6月27日 凌晨5:30 - 上午8:00</strong>  \n* 太平洋夏令时 (UTC -7): 下午2:30 - 下午5:00  \n* 美国东部夏令时 (UTC -4): 下午5:30 - 晚上8:00  \n* 中欧夏令时 (UTC +2): 6月26日 晚上11:30 - 6月27日 凌晨2:00  \n* 澳大利亚东部标准时间 (UTC +10): 6月27日 上午7:30 - 上午10:00  \n\n将不可用的内容：  \n\nA组  \n\nLuna和Solis的频道1-5、11-15  \nScania、Bera和Hyperion的频道1-15  \nNA Challenger World-Interactive的频道1-10  \nKronos的频道1-20  \nNA Challenger World-Heroic的频道1-30  \nEU Challenger World-Interactive和EU Challenger World-Heroic的频道1-5  \n跨世界组队任务  \n\nB组  \n\n在频道间移动时请稍等片刻。  \nLuna和Solis的频道6-10、16-20  \nScania、Bera和Hyperion的频道16-30  \nNA Challenger World-Interactive的频道11-20  \nKronos的频道21-40  \nNA Challenger World-Heroic的频道31-60  \nEU Challenger World-Interactive和EU Challenger World-Heroic的频道6-10  \n\n维护完成后，请重新启动客户端以确保获取最新更新。"
+    },
     {
       "id": "42197v-269-known-issues",
       "title": "maintenanceJun 26, 2026v.269 Known IssuesHere you’ll find a list of known and resolved issues from the&nbsp;v.269 - Ride the Lightning update.",
@@ -27,7 +39,7 @@
     },
     {
       "id": "42253completed-unscheduled-channel-maintenance-june-20-2026",
-      "title": "maintenanceJun 20, 2026[Completed] Unscheduled Channel Maintenance - June 20, 2026The unscheduled channel maintenance has been completed.",
+      "title": "maintenanceJun 20, 2026[Completed] Unscheduled Channel Maintenance - June 20, 2026The unscheduled channel maintenance has been completed.Jun 20, 2026Read More",
       "titleZh": "2026年6月20日",
       "url": "https://www.nexon.com/maplestory/news/maintenance/42253/completed-unscheduled-channel-maintenance-june-20-2026",
       "startTime": "",
@@ -48,18 +60,6 @@
       "endTimeBeijing": "",
       "body": "MAINTENANCE\nJun 20, 2026\n[COMPLETED] EMERGENCY MAINTENANCE - JUNE 20, 2026\n\n[Updated 6/20 at 10:40 PM PDT] The maintenance has been completed and we have extended Cash Shop items in your inventory for 4 hours.\n\nWe are experiencing an unexpected issue and will be taking the Kronos server offline for an unscheduled emergency maintenance today. We are actively working hard to resolve the issues as quickly as possible and will provide more updates and information when we can.\n\nThank you for your patience and we apologize for any inconvenience this issue may have caused. We will be temporarily offline by today, June 20 2026 at 6:40 PM PST (9:40 PM EST  / 3:40 AM CEST June 21 / 11:40 AM AEDT June 21).\n\nThank you for your cooperation,\n\nThe MapleStory Team\n\nWhat will be unavailable:\n\nKronos MapleStory game server.",
       "bodyZh": "维护公告  \n2026年6月20日  \n[已完成] 紧急维护 - 2026年6月20日  \n\n[更新于6月20日太平洋夏令时晚上10:40] 维护已完成，我们已将您背包中的现金商城道具延长了4小时。  \n\n我们遇到了一个意外问题，将于今天对Kronos服务器进行非计划紧急维护。我们正在积极努力尽快解决问题，并将在有进一步信息时及时更新。  \n\n感谢您的耐心等待，对于此次问题可能造成的不便，我们深表歉意。服务器将于今天（2026年6月20日）太平洋夏令时下午6:40（美国东部时间晚上9:40 / 欧洲中部夏令时6月21日凌晨3:40 / 澳大利亚东部夏令时6月21日上午11:40）暂时下线。  \n\n感谢您的配合，  \n\n冒险岛团队  \n\n受影响内容：  \n\nKronos冒险岛游戏服务器。"
-    },
-    {
-      "id": "41982completed-scheduled-game-update-june-17-2026",
-      "title": "maintenanceJun 15, 2026[Completed] Scheduled Game Update - June 17, 2026The maintenance has been completed and we have extended Cash Shop items in your inventory for 9 hours. Please restart your Nexon",
-      "titleZh": "2026年6月15日",
-      "url": "https://www.nexon.com/maplestory/news/maintenance/41982/completed-scheduled-game-update-june-17-2026",
-      "startTime": "",
-      "endTime": "",
-      "startTimeBeijing": "",
-      "endTimeBeijing": "",
-      "body": "MAINTENANCE\nJun 15, 2026\n[COMPLETED] SCHEDULED GAME UPDATE - JUNE 17, 2026\n\n[Updated 6/17 at 2:10 PM PDT] The maintenance has been completed and we have extended Cash Shop items in your inventory for 9 hours. Please restart your Nexon Launcher or Steam to ensure you receive the latest client update.\n\nWe will be performing a scheduled game update starting on Wednesday, June 17, 2026 at 5:00 AM PDT (8:00 AM EDT / 2:00 PM CEST / 10:00 PM AEST). We anticipate the maintenance to conclude around 2:00 PM PDT (5:00 PM EDT / 11:00 PM CEST / 7:00 AM AEST June 18).\n\nPlease note that the estimated length of time for each maintenance is subject to change without notification.\n\nThanks for your patience!\n\nTimes:\n\nWednesday, June 17, 2026\nPDT (UTC -7): 5:00 AM - 2:00 PM\nEDT (UTC -4): 8:00 AM - 5:00 PM\nCEST (UTC +2): 2:00 PM - 11:00 PM\nAEST (UTC +10): 10:00 PM - 7:00 AM June 18\n\nWhat will be unavailable:\n\nAll MapleStory game servers.\n\nChanges and Updates:\n\nMapleStory will be updated to v.269.1.1.\nPatch Notes can be found HERE!",
-      "bodyZh": "维护公告  \n2026年6月15日  \n[已完成] 预定游戏更新 - 2026年6月17日  \n\n[6月17日下午2:10 PDT更新] 维护已完成，我们将您背包中的现金商城物品延长了9小时。请重启Nexon Launcher或Steam，以确保您获得最新的客户端更新。\n\n我们将于2026年6月17日星期三凌晨5:00 PDT（北京时间6月17日晚上8:00）开始进行预定游戏更新。预计维护将于下午2:00 PDT（北京时间6月18日凌晨5:00）结束。\n\n请注意，每次维护的预计时长可能随时更改，恕不另行通知。\n\n感谢您的耐心等待！\n\n时间详情：  \n2026年6月17日，星期三  \n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 6月17日 晚上8:00 - 6月18日 凌晨5:00</strong>  \n* 太平洋夏令时 (UTC -7): 凌晨5:00 - 下午2:00  \n* 美国东部夏令时 (UTC -4): 上午8:00 - 下午5:00  \n* 中欧夏令时 (UTC +2): 下午2:00 - 晚上11:00  \n* 澳大利亚东部标准时间 (UTC +10): 晚上10:00 - 6月18日 上午7:00  \n\n将不可用的内容：  \n所有MapleStory游戏服务器。\n\n变更与更新：  \nMapleStory将更新至v.269.1.1。  \n补丁说明可在此处查看！"
     }
   ]
 }
