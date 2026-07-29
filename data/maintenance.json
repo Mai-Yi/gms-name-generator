@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-07-23T23:16:56.745Z",
+  "updatedAt": "2026-07-29T00:15:05.385Z",
   "items": [
+    {
+      "id": "43420v-270-known-issues",
+      "title": "maintenanceJul 28, 2026v.270 Known IssuesHere you’ll find a list of known and resolved issues from the&nbsp;v.270 - Ride the Lightning update.",
+      "titleZh": "2026年7月22日",
+      "url": "https://www.nexon.com/maplestory/news/maintenance/43420/v-270-known-issues",
+      "startTime": "July 29, 2026 12:00 AM UTC",
+      "endTime": "",
+      "startTimeBeijing": "2026/07/29 08:00",
+      "endTimeBeijing": "",
+      "body": "MAINTENANCE\nJul 28, 2026\nV.270 KNOWN ISSUES\n\nThe Known Issues section focuses on the major issues that have significantly impacted the game and community, and which our team is actively addressing. Please note that while we aim to cover the most impactful issues, this list will not encompass every reported issue. Check back regularly for updates on the status of these issues and information on resolved issues, or any new issues that may have been added.\n\nHere you’ll find a list of known and resolved issues from the v.270 - Ride the Lightning update:\n\nKNOWN ISSUES\nRide or Die\nTo ensure fair gameplay for all players, we will be making the following balance changes with the July 30, 2026 maintenance:\nHP for bosses in Ride or Die will be increased as clear times were too short to determine appropriate ranking placement.\nThe Ride or Die timer will now start when the boss appears to reduce the impact of ping on ranking results.\n10-second re-entry cooldown will be added to prevent repeated entries for better results. This is to mitigate luck based factors on re-entry.\nWeek 2 boss challenges will be temporarily unavailable from July 29, 2026 12:00 AM UTC - July 30, 2026 (after maintenance). We apologize for the inconvenience.\nThe Ride or Die Coin Shop will be temporarily unavailable until further notice.\nThe Operation: Dive Record Shop will be temporarily unavailable until further notice.\nSol Erda Fragment x10 Coupons are temporarily disabled until further notice.\nThe unintended Sol Erda Fragment x10 Coupons that were claimed in the Operation Dive Record Shop will be retrieved at a later date.\nPrincess Sakuno's Blessing and the Twilight Bloom V Cores appear as if they are able to level to 50.\nThis is a visual bug and performance for these V Cores have not changed.\nThis will be fixed in the next scheduled maintenance.\nRESOLVED ISSUES\nJuly 28, 2026\nResolved an issue where the Operation: Dive Research Records was not resetting properly, preventing players from claiming the 500/1000 Record rewards.\nJuly 23, 2026\nResolved an issue where the final hit of Erel Light's skill Eternal Guardian did not trigger properly.\nJuly 22, 2026\nResolved an issue where players were unable to enter Ride or Die through the Libae NPC.",
+      "bodyZh": "维护公告  \n2026年7月22日  \nV.270 已知问题  \n\n已知问题部分主要聚焦于对游戏和社区造成重大影响、且我们团队正在积极处理的主要问题。请注意，虽然我们力求涵盖最具影响力的问题，但此列表不会包含所有已报告的问题。请定期查看，以了解这些问题的最新状态、已解决问题信息，或任何新增问题。  \n\n以下为v.270“驾驭闪电”更新中已知及已解决的问题列表：  \n\n**已知问题**  \n- “生死时速”硬币商店将暂时关闭，直至另行通知。  \n- “行动：潜水记录”商店将暂时关闭，直至另行通知。  \n- 埃雷尔·光之永恒守护者技能的最后一击未按预期生效。  \n  此问题将在下次例行维护中修复。"
+    },
     {
       "id": "43430completed-unscheduled-channel-maintenance-july-23-2026",
       "title": "maintenanceJul 23, 2026[Completed] Unscheduled Channel Maintenance - July 23, 2026The channel maintenance has been completed. Thank you for your patience.",
@@ -24,18 +36,6 @@
       "endTimeBeijing": "",
       "body": "MAINTENANCE\nJul 22, 2026\n[COMPLETED] SCHEDULED CASH SHOP MAINTENANCE - JULY 23, 2026\n\n[Updated 7/23 at 10:30 AM PDT] Cash Shop maintenance has been completed. Cash Shop and Billing/Payments have been reenabled thank you for your patience.\n\nWe will be performing a scheduled Cash Shop maintenance starting on Thursday, July 23, 2026 at 5:00 AM PDT (8:00 AM EDT / 2:00 PM CEST / 10:00 PM AEST). We anticipate the maintenance to last approximately 1 hour concluding around 6:00 AM PDT (9:00 AM EDT / 3:00 PM CEST / 11:00 PM AEST). This maintenance will not affect your access to log in or play MapleStory.\n\nTimes:\n\nThursday, July 23, 2026\nPDT (UTC -7): 5:00 AM - 6:00 AM\nEDT (UTC -4): 8:00 AM - 9:00 AM\nCEST (UTC +2): 2:00 PM - 3:00 PM\nAEST (UTC +10): 10:00 PM - 11:00 PM\n\nWhat will be unavailable:\nCash Shop and Billing/Payments.",
       "bodyZh": "维护公告  \n2026年7月22日  \n[已完成] 预定现金商城维护 - 2026年7月23日  \n\n[更新于7月23日太平洋夏令时上午10:30] 现金商城维护已完成。现金商城及计费/支付功能已重新启用，感谢您的耐心等待。\n\n我们将于2026年7月23日星期四太平洋夏令时凌晨5:00（美国东部夏令时上午8:00 / 中欧夏令时下午2:00 / 澳大利亚东部标准时间晚上10:00）进行预定现金商城维护。预计维护时长约为1小时，于太平洋夏令时上午6:00（美国东部夏令时上午9:00 / 中欧夏令时下午3:00 / 澳大利亚东部标准时间晚上11:00）左右结束。此次维护不会影响您登录或游玩MapleStory。\n\n时间详情：\n\n2026年7月23日，星期四\n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 7月23日 晚上8:00 - 7月23日 晚上9:00</strong>\n* 太平洋夏令时 (UTC -7): 凌晨5:00 - 上午6:00\n* 美国东部夏令时 (UTC -4): 上午8:00 - 上午9:00\n* 中欧夏令时 (UTC +2): 下午2:00 - 下午3:00\n* 澳大利亚东部标准时间 (UTC +10): 晚上10:00 - 晚上11:00\n\n将不可用的功能：\n现金商城及计费/支付功能。"
-    },
-    {
-      "id": "43420v-270-known-issues",
-      "title": "maintenanceJul 22, 2026v.270 Known IssuesHere you’ll find a list of known and resolved issues from the&nbsp;v.270 - Ride the Lightning update.",
-      "titleZh": "2026年7月22日",
-      "url": "https://www.nexon.com/maplestory/news/maintenance/43420/v-270-known-issues",
-      "startTime": "",
-      "endTime": "",
-      "startTimeBeijing": "",
-      "endTimeBeijing": "",
-      "body": "MAINTENANCE\nJul 22, 2026\nV.270 KNOWN ISSUES\n\nThe Known Issues section focuses on the major issues that have significantly impacted the game and community, and which our team is actively addressing. Please note that while we aim to cover the most impactful issues, this list will not encompass every reported issue. Check back regularly for updates on the status of these issues and information on resolved issues, or any new issues that may have been added.\n\nHere you’ll find a list of known and resolved issues from the v.270 - Ride the Lightning update:\n\nKNOWN ISSUES\nThe Ride or Die Coin Shop will be temporarily unavailable until further notice.\nThe Operation: Dive Record Shop will be temporarily unavailable until further notice.\nThe last hit of Erel Light's Eternal Guardian skill is not working as intended.\nThis will be fixed in the next scheduled maintenance.\nSol Erda Fragment x10 Coupons are temporarily disabled until further notice.\nThe unintended Sol Erda Fragment x10 Coupons that were claimed in the Operation Dive Record Shop will be retrieved at a later date.\nPrincess Sakuno's Blessing and the Twilight Bloom V Cores appear as if they are able to level to 50.\nThis is a visual bug and performance for these V Cores have not changed.\nThis will be fixed in the next scheduled maintenance.\nRESOLVED ISSUES\nJuly 22, 2026\nResolved an issue where players were unable to enter Ride or Die through the Libae NPC.",
-      "bodyZh": "维护公告  \n2026年7月22日  \nV.270 已知问题  \n\n已知问题部分主要聚焦于对游戏和社区造成重大影响、且我们团队正在积极处理的主要问题。请注意，虽然我们力求涵盖最具影响力的问题，但此列表不会包含所有已报告的问题。请定期查看，以了解这些问题的最新状态、已解决问题信息，或任何新增问题。  \n\n以下为v.270“驾驭闪电”更新中已知及已解决的问题列表：  \n\n**已知问题**  \n- “生死时速”硬币商店将暂时关闭，直至另行通知。  \n- “行动：潜水记录”商店将暂时关闭，直至另行通知。  \n- 埃雷尔·光之永恒守护者技能的最后一击未按预期生效。  \n  此问题将在下次例行维护中修复。"
     }
   ]
 }
