@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-08-08T01:57:28.552Z",
+  "updatedAt": "2026-08-10T22:06:15.649Z",
   "items": [
+    {
+      "id": "43903unscheduled-maintenance-august-10-2026",
+      "title": "maintenanceClassicAug 10, 2026Unscheduled Maintenance - August 10, 2026We will be performing an unscheduled maintenance starting on Monday, August 10, 2026 at 3:00 PM PDT (6:00 PM EDT / 12:00 AM CEST ",
+      "titleZh": "经典",
+      "url": "https://www.nexon.com/maplestory/news/maintenance/43903/unscheduled-maintenance-august-10-2026",
+      "startTime": "",
+      "endTime": "",
+      "startTimeBeijing": "",
+      "endTimeBeijing": "",
+      "body": "MAINTENANCE\nCLASSIC\nAug 10, 2026\nUNSCHEDULED MAINTENANCE - AUGUST 10, 2026\n\nWe will be performing an unscheduled maintenance starting on Monday, August 10, 2026 at 3:00 PM PDT (6:00 PM EDT / 12:00 AM CEST August 11 / 8:00 AM AEST August 11). We anticipate the maintenance to last approximately 2 hours, concluding around 5:00 PM PDT (8:00 PM EDT / 2:00 AM CEST August 11 / 10:00 AM AEST August 11).\n\nTimes:\n\nMonday, August 10, 2026\nPDT (UTC -7): 3:00 PM - 5:00 PM\nEDT (UTC -4): 6:00 PM - 8:00 PM\nCEST (UTC +2): 12:00 AM August 11 - 2:00 AM August 11\nAEST (UTC +10): 8:00 AM August 11 - 10:00 AM August 11\n\nWhat will be unavailable:\n\nAll MapleStory Classic World game servers.\n\nChanges and Updates:\n\nResolved an issue where items could be duplicated.\nResolved an issue where EXP would sometimes not be lost upon death.",
+      "bodyZh": "维护\n经典\n2026年8月10日\n非定期维护 - 2026年8月10日\n\n我们将于2026年8月10日星期一下午3:00 PDT（东部时间下午6:00 / 中欧夏令时8月11日凌晨12:00 / 澳大利亚东部标准时间8月11日上午8:00）开始进行非定期维护。预计维护将持续约2小时，结束时间约为下午5:00 PDT（东部时间下午8:00 / 中欧夏令时8月11日凌晨2:00 / 澳大利亚东部标准时间8月11日上午10:00）。\n\n时间详情：\n\n2026年8月10日，星期一\n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 8月11日 上午6:00 - 上午8:00</strong>\n* 太平洋夏令时 (UTC -7): 下午3:00 - 下午5:00\n* 东部夏令时 (UTC -4): 下午6:00 - 下午8:00\n* 中欧夏令时 (UTC +2): 8月11日 凌晨12:00 - 8月11日 凌晨2:00\n* 澳大利亚东部标准时间 (UTC +10): 8月11日 上午8:00 - 8月11日 上午10:00\n\n将不可用的内容：\n\n所有MapleStory Classic World游戏服务器。\n\n变更与更新：\n\n修复了物品可能被复制的问题。\n修复了死亡时经验值有时不会丢失的问题。"
+    },
     {
       "id": "43846completed-unscheduled-maintenance-august-7-2026",
       "title": "maintenanceClassicAug 7, 2026[Completed] Unscheduled Maintenance - August 7, 2026The maintenance has been completed.",
@@ -24,18 +36,6 @@
       "endTimeBeijing": "",
       "body": "MAINTENANCE\nCLASSIC\nAug 6, 2026\nCLASSIC WORLD: CLOSED ONLINE TEST #2 KNOWN ISSUES\n\nHere you’ll find a list of known issues from the MapleStory Classic World Closed Online Test #2:\n\nKNOWN ISSUES\nEquipment items obtained from the mailbox after a Hired Merchant shop closes loses certain stats.\nWe will be disabling the use of Hired Merchants for the remainder of the Closed Online Test and apologize for the inconvenience this may cause.\nThe Rush skill for Fighter, Page, and Spearman will sometimes not properly push monsters.\nCash Shop may sometimes display incorrectly under certain conditions.\nMonsters are sometimes knocked back towards the player when hit by ranged basic attacks.\nSafety Charms are consumed when dying in towns.\nGaming keyboard or mice may be incorrectly recognized as controllers.",
       "bodyZh": "维护\n经典\n2026年8月6日\n经典世界：封闭在线测试 #2 已知问题\n\n以下为《冒险岛经典世界》封闭在线测试 #2 的已知问题列表：\n\n已知问题\n雇佣商人商店关闭后，从邮箱中获取的装备物品会丢失部分属性。\n我们将在封闭在线测试剩余期间禁用雇佣商人功能，对此可能造成的不便深表歉意。\n战士、页士和枪战士的“冲刺”技能有时无法正确推动怪物。\n在某些条件下，现金商店可能显示异常。\n怪物被远程基础攻击命中时，有时会向玩家方向击退。\n在城镇中死亡时会消耗护身符。\n游戏键盘或鼠标可能被错误识别为控制器。"
-    },
-    {
-      "id": "34840mac-os-beta-updates",
-      "title": "maintenanceAug 4, 2026Mac OS Beta UpdatesHere you'll find a list of all macOS Beta updates and changes since launch.",
-      "titleZh": "2026年8月4日",
-      "url": "https://www.nexon.com/maplestory/news/maintenance/34840/mac-os-beta-updates",
-      "startTime": "",
-      "endTime": "",
-      "startTimeBeijing": "",
-      "endTimeBeijing": "",
-      "body": "MAINTENANCE\nAug 4, 2026\nMAC OS BETA UPDATES\n\nThe macOS Beta update list focuses on all changes and updates for macOS users during the Beta service. Please check here for what was updated and changed specifically for macOS Beta. Make sure to close and restart your client after an update to ensure you are on the latest build.\n\nUpdates:\n\nAugust 4, 2026\n\nThe macOS client was updated to v.0.0.32.\nMapleStory Classic World:\n\nResolved an issue where the top menu bar appeared in full-screen mode on certain non-widescreen monitors\nResolved an issue causing game controller malfunctions\n\nJuly 14, 2026\n\nThe macOS client was updated to v.0.0.31.\nMinor adjustments to client stability.\n\nJuly 9, 2026\n\nThe macOS client was updated to v.0.0.30.\nResolved an issue where launching MapleStory through Steam would incorrectly display black borders.\n\nJune 17, 2026\n\nThe macOS client was updated to v.0.0.28.\nUpdated to support Discord Connect feature for macOS.\n\nJune 4, 2026\n\nThe macOS client was updated to v.0.0.27.\nResolved an issue where the background for the End User License Agreement was discolored when installing through Steam.\nResolved an issue where the error message for having an outdated client would not show when launching through Steam.\n\nMay 21, 2026\n\nThe macOS client was updated to v.0.0.26.\nAdjusted for Steam Client Support.\n\nApril 30, 2026\n\nThe macOS client was updated to v.0.0.25.\nResolved an issue where a prompt would not show properly in dark mode during the first install.\n\nApril 9, 2026\n\nThe macOS client was updated to v.0.0.24.\nResolved an issue where jumping would persist when repeating commands.\nAdjusted the Dock Icon and Menu Bar.\n\nFebruary 4, 2026\n\nThe macOS client was updated to v.0.0.21.\nNGS will be updated to 5.3.38.0.\n\nJanuary 8, 2026\n\nSome players have reported experiencing drop in FPS while playing through the macOS client.\nWe recommend turning off all in-game sound related settings as it may help alleviate this issue.\n\nDecember 19, 2025\n\nThe macOS client was updated to v.0.0.20.\nResolved an issue where there was a discrepancy with available disc space after installation",
-      "bodyZh": "维护\n2026年8月4日\nMAC OS 测试版更新\n\nmacOS 测试版更新列表主要关注测试服务期间针对 macOS 用户的所有更改和更新。请在此查看针对 macOS 测试版具体更新和更改的内容。更新后，请确保关闭并重新启动客户端，以确保您使用的是最新版本。\n\n更新内容：\n\n2026年8月4日\n\nmacOS 客户端已更新至 v.0.0.32。\nMapleStory Classic World：\n\n修复了在某些非宽屏显示器上全屏模式下顶部菜单栏显示异常的问题\n修复了导致游戏控制器故障的问题\n\n2026年7月14日\n\nmacOS 客户端已更新至 v.0.0.31。\n对客户端稳定性进行了小幅调整。\n\n2026年7月9日\n\nmacOS 客户端已更新至 v.0.0.30。\n修复了通过 Steam 启动 MapleStory 时错误显示黑边的问题。\n\n2026年6月17日\n\nmacOS 客户端已更新至 v.0.0.28。\n更新以支持 macOS 的 Discord Connect 功能。\n\n2026年6月4日\n\nmacOS 客户端已更新至 v.0.0.27。\n修复了通过 Steam 安装时最终用户许可协议背景颜色异常的问题。\n修复了通过 Steam 启动时，客户端版本过旧的错误提示无法显示的问题。\n\n2026年5月21日\n\nmacOS 客户端已更新至 v.0.0.26。\n调整为支持 Steam 客户端。\n\n2026年4月30日\n\nmacOS 客户端已更新至 v.0.0.25。\n修复了首次安装时在深色模式下提示无法正常显示的问题。\n\n2026年4月9日\n\nmacOS 客户端已更新至 v.0.0.24。\n修复了重复指令时跳跃动作持续的问题。\n调整了 Dock 图标和菜单栏。\n\n2026年2月4日\n\nmacOS 客户端已更新至 v.0.0.21。\nNGS 将更新至 5.3.38.0。\n\n2026年1月8日\n\n部分玩家反映通过 macOS 客户端游玩时出现帧率下降的问题。\n我们建议关闭所有游戏内与声音相关的设置，这可能有助于缓解此问题。\n\n2025年12月19日\n\nmacOS 客户端已更新至 v.0.0.20。\n修复了安装后可用磁盘空间显示不一致的问题。"
     }
   ]
 }
