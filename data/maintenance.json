@@ -1,17 +1,17 @@
 {
-  "updatedAt": "2026-08-10T22:06:15.649Z",
+  "updatedAt": "2026-08-10T23:40:58.523Z",
   "items": [
     {
-      "id": "43903unscheduled-maintenance-august-10-2026",
-      "title": "maintenanceClassicAug 10, 2026Unscheduled Maintenance - August 10, 2026We will be performing an unscheduled maintenance starting on Monday, August 10, 2026 at 3:00 PM PDT (6:00 PM EDT / 12:00 AM CEST ",
+      "id": "43903completed-unscheduled-maintenance-august-10-2026",
+      "title": "maintenanceClassicAug 10, 2026[Completed] Unscheduled Maintenance - August 10, 2026The maintenance has been completed.",
       "titleZh": "经典",
-      "url": "https://www.nexon.com/maplestory/news/maintenance/43903/unscheduled-maintenance-august-10-2026",
+      "url": "https://www.nexon.com/maplestory/news/maintenance/43903/completed-unscheduled-maintenance-august-10-2026",
       "startTime": "",
       "endTime": "",
       "startTimeBeijing": "",
       "endTimeBeijing": "",
-      "body": "MAINTENANCE\nCLASSIC\nAug 10, 2026\nUNSCHEDULED MAINTENANCE - AUGUST 10, 2026\n\nWe will be performing an unscheduled maintenance starting on Monday, August 10, 2026 at 3:00 PM PDT (6:00 PM EDT / 12:00 AM CEST August 11 / 8:00 AM AEST August 11). We anticipate the maintenance to last approximately 2 hours, concluding around 5:00 PM PDT (8:00 PM EDT / 2:00 AM CEST August 11 / 10:00 AM AEST August 11).\n\nTimes:\n\nMonday, August 10, 2026\nPDT (UTC -7): 3:00 PM - 5:00 PM\nEDT (UTC -4): 6:00 PM - 8:00 PM\nCEST (UTC +2): 12:00 AM August 11 - 2:00 AM August 11\nAEST (UTC +10): 8:00 AM August 11 - 10:00 AM August 11\n\nWhat will be unavailable:\n\nAll MapleStory Classic World game servers.\n\nChanges and Updates:\n\nResolved an issue where items could be duplicated.\nResolved an issue where EXP would sometimes not be lost upon death.",
-      "bodyZh": "维护\n经典\n2026年8月10日\n非定期维护 - 2026年8月10日\n\n我们将于2026年8月10日星期一下午3:00 PDT（东部时间下午6:00 / 中欧夏令时8月11日凌晨12:00 / 澳大利亚东部标准时间8月11日上午8:00）开始进行非定期维护。预计维护将持续约2小时，结束时间约为下午5:00 PDT（东部时间下午8:00 / 中欧夏令时8月11日凌晨2:00 / 澳大利亚东部标准时间8月11日上午10:00）。\n\n时间详情：\n\n2026年8月10日，星期一\n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 8月11日 上午6:00 - 上午8:00</strong>\n* 太平洋夏令时 (UTC -7): 下午3:00 - 下午5:00\n* 东部夏令时 (UTC -4): 下午6:00 - 下午8:00\n* 中欧夏令时 (UTC +2): 8月11日 凌晨12:00 - 8月11日 凌晨2:00\n* 澳大利亚东部标准时间 (UTC +10): 8月11日 上午8:00 - 8月11日 上午10:00\n\n将不可用的内容：\n\n所有MapleStory Classic World游戏服务器。\n\n变更与更新：\n\n修复了物品可能被复制的问题。\n修复了死亡时经验值有时不会丢失的问题。"
+      "body": "MAINTENANCE\nCLASSIC\nAug 10, 2026\n[COMPLETED] UNSCHEDULED MAINTENANCE - AUGUST 10, 2026\n\n[Updated 8/10 at 4:05 PM PDT] The maintenance has been completed. Please restart your Nexon Launcher to ensure you receive the latest update.\n\nWe will be performing an unscheduled maintenance starting on Monday, August 10, 2026 at 3:00 PM PDT (6:00 PM EDT / 12:00 AM CEST August 11 / 8:00 AM AEST August 11). We anticipate the maintenance to last approximately 2 hours, concluding around 5:00 PM PDT (8:00 PM EDT / 2:00 AM CEST August 11 / 10:00 AM AEST August 11).\n\nTimes:\n\nMonday, August 10, 2026\nPDT (UTC -7): 3:00 PM - 5:00 PM\nEDT (UTC -4): 6:00 PM - 8:00 PM\nCEST (UTC +2): 12:00 AM August 11 - 2:00 AM August 11\nAEST (UTC +10): 8:00 AM August 11 - 10:00 AM August 11\n\nWhat will be unavailable:\n\nAll MapleStory Classic World game servers.\n\nChanges and Updates:\n\nResolved an issue where items could be duplicated.\nResolved an issue where EXP would sometimes not be lost upon death.",
+      "bodyZh": "维护\n经典\n2026年8月10日\n[已完成] 2026年8月10日非定期维护\n\n[更新于8月10日下午4:05 PDT] 维护已完成。请重启您的Nexon启动器以确保获取最新更新。\n\n我们将于2026年8月10日星期一下午3:00 PDT（东部时间下午6:00 / 中欧夏令时8月11日凌晨12:00 / 澳大利亚东部标准时间8月11日上午8:00）开始进行非定期维护。预计维护将持续约2小时，于下午5:00 PDT（东部时间下午8:00 / 中欧夏令时8月11日凌晨2:00 / 澳大利亚东部标准时间8月11日上午10:00）左右结束。\n\n时间详情：\n\n2026年8月10日，星期一\n* <strong class=\"maintenance-time-beijing maintenance-time-beijing-highlight\">北京时间 (UTC +8): 8月11日 上午6:00 - 上午8:00</strong>\n* 太平洋夏令时 (UTC -7): 下午3:00 - 下午5:00\n* 东部夏令时 (UTC -4): 下午6:00 - 下午8:00\n* 中欧夏令时 (UTC +2): 8月11日 凌晨12:00 - 8月11日 凌晨2:00\n* 澳大利亚东部标准时间 (UTC +10): 8月11日 上午8:00 - 8月11日 上午10:00\n\n将不可用的内容：\n\n所有MapleStory经典世界游戏服务器。\n\n更改与更新：\n\n解决了物品可能被复制的问题。\n解决了死亡时经验值有时不会丢失的问题。"
     },
     {
       "id": "43846completed-unscheduled-maintenance-august-7-2026",
