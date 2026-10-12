@@ -6,14 +6,39 @@
   <title>冒险岛 GMS 工具集</title>
   <base href="./">
   <link rel="stylesheet" href="style.css?v=4">
+
+<script id="data-protection">
+(function(){
+var keys=['gms-boss-crystal-data','gms-hexa-characters','gms-hexa-slot-locks'],seen={},blocked={};
+function notice(message){var el=document.getElementById('dataSafetyMessage');if(el){el.hidden=false;el.textContent=message;}else document.addEventListener('DOMContentLoaded',function(){notice(message);},{once:true});}
+function valid(key,d){if(!d||typeof d!=='object'||Array.isArray(d))return false;if(key===keys[2])return Object.values(d).every(function(v){return typeof v==='boolean';});if(!Array.isArray(d.characters))return false;if(key===keys[0]&&['selectedCharIndices','characterPowerOrder'].some(function(k){return d[k]!=null&&(!Array.isArray(d[k])||!d[k].every(function(i){return Number.isInteger(i)&&i>=0;}));}))return false;if(key===keys[1]&&d.selectedIndex!=null&&(!Number.isInteger(d.selectedIndex)||d.selectedIndex<0))return false;return d.characters.every(function(c){if(!c||typeof c.name!=='string')return false;if(key===keys[0])return c.selections&&typeof c.selections==='object'&&!Array.isArray(c.selections)&&Object.values(c.selections).every(function(s){return typeof s==='string'||(s&&typeof s.diff==='string'&&(s.people==null||(Number.isInteger(s.people)&&s.people>=1&&s.people<=6)));});return c.data&&c.data.slots&&typeof c.data.slots==='object'&&!Array.isArray(c.data.slots)&&Object.values(c.data.slots).every(function(s){return s&&Number.isInteger(s.cur)&&s.cur>=0&&s.cur<=30&&(s.tgt==null||(Number.isInteger(s.tgt)&&s.tgt>=0&&s.tgt<=30));});});}
+function decode(key,raw){var d=JSON.parse(raw);if(!valid(key,d))throw Error('格式不正确');return d;}
+function read(key){try{var raw=localStorage.getItem(key);if(!Object.prototype.hasOwnProperty.call(seen,key))seen[key]=raw;if(raw===null)return null;return decode(key,raw);}catch(e){blocked[key]=true;notice('原有数据读取失败，已停止覆盖。请导出全部数据，或从自动备份恢复。');return null;}}
+function backup(key,raw){if(raw===null)return true;try{var list=JSON.parse(localStorage.getItem(key+'-safety-backups')||'[]');if(!Array.isArray(list))throw Error('备份损坏');if(!list.length||list[list.length-1].raw!==raw)list.push({time:new Date().toISOString(),raw:raw});localStorage.setItem(key+'-safety-backups',JSON.stringify(list.slice(-8)));return true;}catch(e){notice('自动备份保存失败，本次修改未保存。请立即导出备份并检查浏览器存储空间。');return false;}}
+function write(key,d){if(blocked[key])return false;try{if(!valid(key,d))throw Error('数据格式异常');var raw=localStorage.getItem(key),next=JSON.stringify(d);if(Object.prototype.hasOwnProperty.call(seen,key)&&raw!==seen[key]){blocked[key]=true;notice('其他页面更改了数据，本页暂停保存。请导出本页需要保留的数据后刷新。');return false;}if(raw===next)return true;if(raw!==null)decode(key,raw);if(!backup(key,raw))return false;localStorage.setItem(key,next);seen[key]=next;return true;}catch(e){notice('数据未能保存，原有数据已保留。请使用工具的导出到txt保存当前输入，勿关闭或刷新页面。');return false;}}
+function replace(key,d){if(!valid(key,d)){alert('备份格式不正确或不属于此工具，未覆盖数据。');return false;}if(blocked[key]){notice('本页已暂停保存，请先备份或恢复自动备份，再刷新后导入。');return false;}if(!confirm('恢复会替换此工具的数据，替换前会自动备份。是否继续？'))return false;return write(key,d);}
+function download(d,name){var url=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+function exportAll(){var raw={},errors=[];keys.forEach(function(k){try{raw[k]=localStorage.getItem(k);raw[k+'-safety-backups']=localStorage.getItem(k+'-safety-backups');}catch(e){errors.push(k);}});download({version:1,exportedAt:new Date().toISOString(),origin:location.origin,raw:raw,errors:errors},'gms-all-data-backup.json');if(errors.length)notice('部分存储无法读取，请同时使用各工具的导出到txt保存当前页面数据。');}
+function restoreBackup(){var entries=[],labels={};labels[keys[0]]='搬蛋角色';labels[keys[1]]='六转角色';labels[keys[2]]='六转锁定';try{keys.forEach(function(k){JSON.parse(localStorage.getItem(k+'-safety-backups')||'[]').forEach(function(b){try{decode(k,b.raw);entries.push({key:k,time:b.time,raw:b.raw});}catch(e){}});});}catch(e){alert('备份读取失败，请使用导出的文件恢复。');return;}if(!entries.length){alert('暂无可用自动备份。');return;}entries.sort(function(a,b){return b.time.localeCompare(a.time);});var choice=prompt('请输入备份编号：\n'+entries.map(function(b,i){return(i+1)+'. '+labels[b.key]+' '+new Date(b.time).toLocaleString();}).join('\n'));if(choice===null)return;var i=Number(choice)-1;if(!Number.isInteger(i)||!entries[i]){alert('编号无效');return;}var b=entries[i];if(!confirm('恢复 '+labels[b.key]+'？当前原始数据会先备份。'))return;try{if(!backup(b.key,localStorage.getItem(b.key)))return;localStorage.setItem(b.key,b.raw);location.reload();}catch(e){notice('恢复失败，请先导出全部数据。');}}
+window.GMSData={read:read,write:write,replace:replace,valid:valid};
+window.addEventListener('storage',function(e){if(keys.includes(e.key)||e.key===null){keys.forEach(function(k){if(e.key===null||e.key===k)blocked[k]=true;});notice('其他页面已更新数据，本页暂停保存。请导出需要保留的数据后刷新。');}});
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('dataExportAll').onclick=exportAll;document.getElementById('dataRestoreBackup').onclick=restoreBackup;document.getElementById('dataImportAll').onchange=function(e){var f=e.target.files[0];if(!f)return;f.text().then(function(text){var p=JSON.parse(text);if(p.version!==1||!p.raw)throw Error('格式');var list=[];keys.forEach(function(k){var raw=p.raw[k];if(raw!=null)list.push({key:k,raw:raw,data:decode(k,raw)});});if(!list.length||keys.some(function(k){return blocked[k];}))throw Error('暂停');if(!confirm('恢复全部工具数据？当前内容会先自动备份。'))return;var old={};list.forEach(function(c){old[c.key]=localStorage.getItem(c.key);if(Object.prototype.hasOwnProperty.call(seen,c.key)&&seen[c.key]!==old[c.key])throw Error('冲突');if(!backup(c.key,old[c.key]))throw Error('备份失败');});try{list.forEach(function(c){localStorage.setItem(c.key,c.raw);});}catch(error){list.forEach(function(c){try{if(old[c.key]===null)localStorage.removeItem(c.key);else localStorage.setItem(c.key,old[c.key]);}catch(e){}});throw error;}location.reload();}).catch(function(){notice('导入未完成，请保留备份文件，检查格式并刷新后重试。');}).finally(function(){e.target.value='';});};});
+})();
+</script>
 </head>
 <body class="has-app-header" data-build="v4">
   <nav class="app-header">
-    <a href="#name" class="app-tab active" data-panel="name">中文名起名器</a>
-    <a href="#crystal" class="app-tab" data-panel="crystal">搬蛋小助手</a>
+    <a href="#crystal" class="app-tab active" data-panel="crystal">搬蛋小助手</a>
     <a href="#hexa" class="app-tab" data-panel="hexa">六转计算器</a>
     <a href="#maintenance" class="app-tab" data-panel="maintenance">维护公告</a>
   </nav>
+  <div style="max-width:1100px;margin:12px auto;padding:0 16px;font-size:13px">
+<button class="btn btn-secondary" type="button" id="dataExportAll">备份全部数据</button>
+<button class="btn btn-secondary" type="button" id="dataRestoreBackup">恢复自动备份</button>
+<label class="btn btn-secondary">导入全部备份<input type="file" id="dataImportAll" accept=".json" style="display:none"></label>
+<span>换设备或网址前请备份；保存失败时请另用各工具的导出到txt保存当前输入。</span>
+<p id="dataSafetyMessage" role="alert" hidden style="color:#a52828;font-weight:600"></p>
+</div>
   <div class="float-deco left">
     <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
     <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
@@ -24,7 +49,7 @@
     <img src="assets/piaofu-1.png" alt="" aria-hidden="true">
     <img src="assets/piaofu-2.png" alt="" aria-hidden="true">
   </div>
-  <div id="panel-name" class="panel active">
+  <div id="panel-name" class="panel" hidden>
   <div class="page-wrap page-wrap-name">
     <div class="banner" role="img" aria-label="冒险岛">
       <div class="banner-inner">
@@ -65,7 +90,7 @@
   </div>
   </div>
 
-  <div id="panel-crystal" class="panel">
+  <div id="panel-crystal" class="panel active">
   <div class="page-wrap page-wrap-crystal">
     <div class="banner" role="img" aria-label="冒险岛">
       <div class="banner-inner">
@@ -177,7 +202,7 @@
         <div class="hexa-matrix-canvas" id="hexaMatrixCanvas" style="background-image: url('assets/hexa-matrix-bg.png');">
         <div class="hexa-slot" data-type="origin" data-idx="1" data-slot-key="origin-1" style="left:40%;top:34.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源1"><button type="button" class="hexa-slot-lock" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot" data-type="origin" data-idx="2" data-slot-key="origin-2" style="left:25%;top:34.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源2"><button type="button" class="hexa-slot-lock" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
-        <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="3" data-slot-key="origin-3" style="left:32.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源3"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="origin" data-idx="3" data-slot-key="origin-3" style="left:32.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源3"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="4" data-slot-key="origin-4" style="left:17.5%;top:22.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源4"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="5" data-slot-key="origin-5" style="left:25%;top:10%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源5"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源5"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot hexa-slot-default-locked" data-type="origin" data-idx="6" data-slot-key="origin-6" style="left:11%;top:10%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="起源6"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="起源6"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
@@ -191,7 +216,7 @@
         <div class="hexa-slot" data-type="v" data-idx="4" data-slot-key="v-4" style="left:10.5%;top:90%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="V4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="V4"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot" data-type="common" data-idx="1" data-slot-key="common-1" style="left:60.5%;top:65%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用1"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用1"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot" data-type="common" data-idx="2" data-slot-key="common-2" style="left:68%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用2"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用2"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
-        <div class="hexa-slot hexa-slot-default-locked" data-type="common" data-idx="3" data-slot-key="common-3" style="left:82.5%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用3"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
+        <div class="hexa-slot" data-type="common" data-idx="3" data-slot-key="common-3" style="left:82.5%;top:77.5%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用3"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用3"><button type="button" class="hexa-slot-lock" title="点击锁定" aria-label="锁定"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
         <div class="hexa-slot hexa-slot-default-locked" data-type="common" data-idx="4" data-slot-key="common-4" style="left:89.5%;top:90%"><input type="number" min="0" max="30" value="0" class="hexa-cur" placeholder="当前" title="通用4"><input type="number" min="0" max="30" value="" class="hexa-tgt" placeholder="30" title="通用4"><button type="button" class="hexa-slot-lock locked" title="点击解锁" aria-label="解锁"><img src="assets/locker.png" alt="" class="lock-img-closed"><img src="assets/unlock.png" alt="" class="lock-img-open"></button></div>
       </div>
       </div>
@@ -456,10 +481,10 @@
         }
       }
       function init() {
-        var hash = (location.hash || '#name').replace(/^#/, '');
-        var id = (hash === 'crystal' || hash === 'maintenance' || hash === 'hexa' || hash.startsWith('hexa&')) ? (hash.indexOf('hexa') === 0 ? 'hexa' : hash) : 'name';
+        var hash = (location.hash || '#crystal').replace(/^#/, '');
+        var id = (hash === 'crystal' || hash.startsWith('crystal&')) ? 'crystal' : (hash === 'hexa' || hash.startsWith('hexa&')) ? 'hexa' : hash === 'maintenance' ? 'maintenance' : 'crystal';
         showPanel(id);
-        if (location.hash !== '#' + id && !(id === 'hexa' && (location.hash || '').indexOf('hexab=') >= 0)) {
+        if (location.hash !== '#' + id && !((id === 'hexa' && /[#&]hexab=/.test(location.hash)) || (id === 'crystal' && /[#&]b=/.test(location.hash)))) {
           location.hash = id;
         }
       }
@@ -568,12 +593,16 @@
           [7,234],[7,248],[7,262],[7,275],[7,289],[9,303],[9,317],[9,330],[10,344],[20,750]
         ]
       };
+      // Common node 3: 5th Job Common Node Boosts, MapleStory Wiki HEXA Matrix.
+      HEXA_COSTS.commonBoost = [[4,90],[1,25],[1,30],[1,35],[2,40],[2,45],[2,50],[3,55],[3,60],[9,180],[3,73],[3,81],[3,90],[3,98],[4,107],[4,115],[4,124],[4,132],[4,141],[14,315],[4,151],[5,160],[5,170],[5,179],[5,189],[5,198],[5,208],[5,217],[6,227],[18,450]];
+      // Origin node 3: 3rd Skill Node, MapleStory Wiki HEXA Matrix.
+      HEXA_COSTS.originThird = [[7,140],[1,21],[1,26],[1,30],[1,34],[2,38],[2,43],[2,47],[2,51],[8,142],[2,62],[2,69],[3,77],[3,83],[3,91],[3,98],[3,105],[3,112],[3,120],[12,252],[4,128],[4,136],[4,145],[4,152],[4,161],[4,168],[5,177],[5,184],[5,193],[14,357]];
       var HEXA_STORAGE_KEY = 'gms-hexa-characters';
       var HEXA_LOCK_KEY = 'gms-hexa-slot-locks';
       var hexaCharacters = [];
       var selectedHexaCharIndex = 0;
-      function calcCost(type, fromLv, toLv) {
-        var t = HEXA_COSTS[type];
+      function calcCost(type, fromLv, toLv, slotKey) {
+        var t = HEXA_COSTS[slotKey === 'origin-3' ? 'originThird' : slotKey === 'common-3' ? 'commonBoost' : type];
         if (!t || fromLv >= toLv) return { erda: 0, frag: 0 };
         var erda = 0, frag = 0;
         for (var i = fromLv; i < toLv && i < 30; i++) {
@@ -616,30 +645,18 @@
           hexaCharacters[selectedHexaCharIndex].data = getHexaDataFromUI();
         }
       }
-      function loadChar(i) {
+      function loadChar(i, skipSave) {
         if (i < 0 || i >= hexaCharacters.length) return;
-        saveCurrentChar();
+        if (!skipSave) saveCurrentChar();
         selectedHexaCharIndex = i;
         var ch = hexaCharacters[i];
         setHexaDataToUI(ch.data);
         renderHexaCharList();
         updateHexa();
       }
-      function saveHexaToStorage() {
-        try {
-          localStorage.setItem(HEXA_STORAGE_KEY, JSON.stringify({ characters: hexaCharacters, selectedIndex: selectedHexaCharIndex }));
-        } catch (e) {}
+      function saveHexaToStorage() { return GMSData.write(HEXA_STORAGE_KEY,{characters:hexaCharacters,selectedIndex:selectedHexaCharIndex});
       }
-      function loadHexaFromStorage() {
-        try {
-          var raw = localStorage.getItem(HEXA_STORAGE_KEY);
-          if (!raw) return;
-          var data = JSON.parse(raw);
-          if (data.characters && data.characters.length) {
-            hexaCharacters = data.characters;
-            selectedHexaCharIndex = Math.min(data.selectedIndex || 0, hexaCharacters.length - 1);
-          }
-        } catch (e) {}
+      function loadHexaFromStorage() { var data=GMSData.read(HEXA_STORAGE_KEY);if(data&&data.characters.length){hexaCharacters=data.characters;selectedHexaCharIndex=Math.max(0,Math.min(Number.isInteger(data.selectedIndex)?data.selectedIndex:0,hexaCharacters.length-1));}
       }
       function loadHexaFromHash() {
         try {
@@ -668,7 +685,7 @@
           if (!s) continue;
           var cur = s.cur || 0;
           if (cur > 0) {
-            var c = calcCost(type, 0, cur);
+            var c = calcCost(type, 0, cur, key);
             erda += c.erda;
             frag += c.frag;
           }
@@ -694,7 +711,7 @@
           var tgt = (s.tgt != null && s.tgt !== '') ? (s.tgt || dt) : dt;
           tgt = Math.max(1, Math.min(30, tgt));
           if (cur < tgt) {
-            var c = calcCost(type, cur, tgt);
+            var c = calcCost(type, cur, tgt, key);
             erda += c.erda;
             frag += c.frag;
           }
@@ -715,21 +732,22 @@
         document.querySelectorAll('.hexa-slot').forEach(function (slot) {
           if (slot.classList.contains('hexa-slot-locked')) return;
           var type = slot.getAttribute('data-type');
+          var key = slot.getAttribute('data-slot-key');
           var curIn = slot.querySelector('.hexa-cur');
           var tgtIn = slot.querySelector('.hexa-tgt');
           var cur = parseInt(curIn.value, 10) || 0;
           var tgt = (tgtIn.value !== '' && tgtIn.value !== null) ? (parseInt(tgtIn.value, 10) || defaultTarget) : defaultTarget;
           tgt = Math.max(1, Math.min(30, tgt));
-          var cNeeded = calcCost(type, 0, tgt);
+          var cNeeded = calcCost(type, 0, tgt, key);
           neededErda += cNeeded.erda;
           neededFrag += cNeeded.frag;
           if (cur > 0) {
-            var cObtained = calcCost(type, 0, cur);
+            var cObtained = calcCost(type, 0, cur, key);
             obtainedErda += cObtained.erda;
             obtainedFrag += cObtained.frag;
           }
           if (cur < tgt) {
-            var cRemain = calcCost(type, cur, tgt);
+            var cRemain = calcCost(type, cur, tgt, key);
             remainErda += cRemain.erda;
             remainFrag += cRemain.frag;
           }
@@ -747,14 +765,9 @@
         if (re) re.textContent = remainErda;
         if (rf) rf.textContent = remainFrag;
       }
-      function getLockState() {
-        try {
-          var raw = localStorage.getItem(HEXA_LOCK_KEY);
-          return raw ? JSON.parse(raw) : {};
-        } catch (e) { return {}; }
+      function getLockState() { return GMSData.read(HEXA_LOCK_KEY)||{};
       }
-      function saveLockState(state) {
-        try { localStorage.setItem(HEXA_LOCK_KEY, JSON.stringify(state)); } catch (e) {}
+      function saveLockState(state) { return GMSData.write(HEXA_LOCK_KEY,state);
       }
       function applySlotLock(slot, locked) {
         var key = slot.getAttribute('data-slot-key');
@@ -837,7 +850,7 @@
             var i = parseInt(btn.dataset.idx, 10);
             hexaCharacters.splice(i, 1);
             if (selectedHexaCharIndex >= hexaCharacters.length) selectedHexaCharIndex = Math.max(0, hexaCharacters.length - 1);
-            if (hexaCharacters.length) loadChar(selectedHexaCharIndex);
+            if (hexaCharacters.length) loadChar(selectedHexaCharIndex, true);
             else setHexaDataToUI({ defaultTarget: 30, slots: {} });
             renderHexaCharTabs();
             renderHexaCharList();
@@ -852,14 +865,10 @@
         updateHexa();
       }
       function bindHexa() {
-        var savedFromHash = loadHexaFromHash();
-        if (savedFromHash && savedFromHash.characters && savedFromHash.characters.length) {
-          hexaCharacters = savedFromHash.characters;
-          selectedHexaCharIndex = Math.min(savedFromHash.selectedIndex || 0, hexaCharacters.length - 1);
-          saveHexaToStorage();
-        } else {
-          loadHexaFromStorage();
-        }
+        loadHexaFromStorage();
+        var savedFromHash=loadHexaFromHash();
+        if(savedFromHash&&GMSData.replace(HEXA_STORAGE_KEY,savedFromHash)){hexaCharacters=savedFromHash.characters;selectedHexaCharIndex=Math.max(0,Math.min(Number.isInteger(savedFromHash.selectedIndex)?savedFromHash.selectedIndex:0,hexaCharacters.length-1));}
+        if(/[#&]hexab=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#hexa');
         if (!hexaCharacters.length) {
           hexaCharacters = [{ id: Date.now(), name: '角色 1', data: { defaultTarget: 30, slots: {} } }];
           selectedHexaCharIndex = 0;
@@ -898,7 +907,7 @@
         if (toggle) toggle.addEventListener('click', function () { setMode(canvas.classList.contains('hexa-show-tgt')); });
         setMode(true);
         if (defaultTarget) defaultTarget.addEventListener('input', hexaChange);
-        loadChar(selectedHexaCharIndex);
+        loadChar(selectedHexaCharIndex, true);
         renderHexaCharTabs();
         renderHexaCharList();
         document.getElementById('hexaBtnLinkBackup')?.addEventListener('click', function () {
@@ -931,7 +940,7 @@
           hexaCharacters.push({ id: Date.now(), name: name, data: { defaultTarget: 30, slots: {} } });
           if (input) input.value = '';
           selectedHexaCharIndex = hexaCharacters.length - 1;
-          loadChar(selectedHexaCharIndex);
+          loadChar(selectedHexaCharIndex, true);
           renderHexaCharTabs();
           renderHexaCharList();
           saveHexaToStorage();
@@ -963,9 +972,10 @@
                 alert('备份格式无效');
                 return;
               }
+              if(!GMSData.replace(HEXA_STORAGE_KEY,data))return;
               hexaCharacters = data.characters;
-              selectedHexaCharIndex = Math.min(data.selectedIndex || 0, hexaCharacters.length - 1);
-              loadChar(selectedHexaCharIndex);
+              selectedHexaCharIndex = Math.max(0,Math.min(Number.isInteger(data.selectedIndex)?data.selectedIndex:0,hexaCharacters.length-1));
+              loadChar(selectedHexaCharIndex, true);
               renderHexaCharTabs();
               renderHexaCharList();
               saveHexaToStorage();
@@ -978,6 +988,8 @@
           reader.readAsText(file, 'UTF-8');
         });
         window.addEventListener('beforeunload', function () { saveCurrentChar(); saveHexaToStorage(); });
+        window.addEventListener('pagehide', function () { saveCurrentChar(); saveHexaToStorage(); });
+        document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { saveCurrentChar(); saveHexaToStorage(); } });
       }
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bindHexa);
@@ -988,7 +1000,7 @@
   </script>
 
   <script id="boss-data" type="application/json">
-{"prices":{"Zakum":{"EASY":1000000,"NORMAL":3062500,"CHAOS":81000000},"Magnus":{"EASY":3610000,"NORMAL":12960000,"HARD":95062500},"Hilla":{"NORMAL":4000000,"HARD":56250000},"Papulatus":{"EASY":3422500,"NORMAL":13322500,"CHAOS":132250000},"Pierre":{"NORMAL":4840000,"CHAOS":81000000},"Von Bon":{"NORMAL":4840000,"CHAOS":81000000},"Crimson Queen":{"NORMAL":4840000,"CHAOS":81000000},"Vellum":{"NORMAL":4840000,"CHAOS":105062500},"Pink Bean":{"NORMAL":7022500,"CHAOS":64000000},"Cygnus":{"EASY":45562500,"NORMAL":72250000},"Lotus":{"NORMAL":162562500,"HARD":444675000,"EXTREME":1397500000},"Damien":{"NORMAL":169000000,"HARD":421875000},"Guardian Angel Slime":{"NORMAL":231673500,"CHAOS":600578125},"Lucid":{"EASY":237009375,"NORMAL":253828125,"HARD":504000000},"Will":{"EASY":246744750,"NORMAL":279075000,"HARD":621810000},"Gloom":{"NORMAL":297675000,"CHAOS":563945000},"Verus Hilla":{"NORMAL":581880000,"HARD":762105000},"Darknell":{"NORMAL":316875000,"HARD":667920000},"Chosen Seren":{"NORMAL":889021875,"HARD":1096562500,"EXTREME":4235000000},"Kalos the Guardian":{"EASY":937500000,"NORMAL":1300000000,"CHAOS":2600000000,"EXTREME":5200000000},"Kaling":{"EASY":1031250000,"NORMAL":1506500000,"HARD":2990000000,"EXTREME":6026000000},"Limbo":{"NORMAL":2100000000,"HARD":3745000000},"Baldrix":{"NORMAL":2800000000,"HARD":4200000000},"First Adversary":{"EASY":985000000,"NORMAL":1365000000,"HARD":2940000000,"EXTREME":5880000000},"Princess No":{"NORMAL":81000000},"Akechi Mitsuhide":{"NORMAL":144000000},"Black Mage":{"HARD":4500000000,"EXTREME":18000000000}},"categories":{"Weekly":["Zakum","Magnus","Hilla","Papulatus","Pierre","Von Bon","Crimson Queen","Vellum","Pink Bean","Cygnus","Lotus","Damien","Guardian Angel Slime","Lucid","Will","Gloom","Verus Hilla","Darknell","Chosen Seren","Kalos the Guardian","Kaling","Limbo","Baldrix","First Adversary","Princess No","Akechi Mitsuhide"],"Monthly":["Black Mage"]}}
+{"prices":{"Zakum":{"EASY":1000000,"NORMAL":3062500,"CHAOS":81000000},"Magnus":{"EASY":3610000,"NORMAL":12960000,"HARD":95062500},"Hilla":{"NORMAL":4000000,"HARD":56250000},"Papulatus":{"EASY":3422500,"NORMAL":13322500,"CHAOS":132250000},"Pierre":{"NORMAL":4840000,"CHAOS":81000000},"Von Bon":{"NORMAL":4840000,"CHAOS":81000000},"Crimson Queen":{"NORMAL":4840000,"CHAOS":81000000},"Vellum":{"NORMAL":4840000,"CHAOS":105062500},"Pink Bean":{"NORMAL":7022500,"CHAOS":64000000},"Cygnus":{"EASY":45562500,"NORMAL":72250000},"Lotus":{"NORMAL":162562500,"HARD":444675000,"EXTREME":1397500000},"Damien":{"NORMAL":169000000,"HARD":421875000},"Guardian Angel Slime":{"NORMAL":231673500,"CHAOS":600578125},"Lucid":{"EASY":237009375,"NORMAL":253828125,"HARD":504000000},"Will":{"EASY":246744750,"NORMAL":279075000,"HARD":621810000},"Gloom":{"NORMAL":297675000,"CHAOS":563945000},"Verus Hilla":{"NORMAL":581880000,"HARD":762105000},"Darknell":{"NORMAL":316875000,"HARD":667920000},"Chosen Seren":{"NORMAL":889021875,"HARD":1096562500,"EXTREME":4235000000},"Kalos the Guardian":{"EASY":937500000,"NORMAL":1300000000,"CHAOS":2600000000,"EXTREME":5200000000},"Kaling":{"EASY":1031250000,"NORMAL":1506500000,"HARD":2990000000,"EXTREME":6026000000},"Limbo":{"NORMAL":2100000000,"HARD":3745000000},"Baldrix":{"NORMAL":2800000000,"HARD":4200000000},"First Adversary":{"EASY":985000000,"NORMAL":1365000000,"HARD":2940000000,"EXTREME":5880000000},"Malefic Star":{"NORMAL":1452000000,"HARD":3990000000},"Jupiter":{"NORMAL":2965000000,"HARD":5953000000},"Princess No":{"NORMAL":81000000},"Akechi Mitsuhide":{"NORMAL":144000000},"Black Mage":{"HARD":4500000000,"EXTREME":18000000000}},"categories":{"Weekly":["Zakum","Magnus","Hilla","Papulatus","Pierre","Von Bon","Crimson Queen","Vellum","Pink Bean","Cygnus","Lotus","Damien","Guardian Angel Slime","Lucid","Will","Gloom","Verus Hilla","Darknell","Chosen Seren","Kalos the Guardian","Kaling","Limbo","Baldrix","First Adversary","Malefic Star","Jupiter","Princess No","Akechi Mitsuhide"],"Monthly":["Black Mage"]}}
   </script>
 
   <script>
@@ -1029,17 +1041,10 @@
         return i >= 0 ? i : characterPowerOrder.length;
       }
 
-      function saveToStorage() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ characters, selectedCharIndices, characterPowerOrder }));
-        } catch (e) {}
+      function saveToStorage() { return GMSData.write(STORAGE_KEY,{characters,selectedCharIndices,characterPowerOrder});
       }
 
-      function loadFromStorage() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          return raw ? JSON.parse(raw) : null;
-        } catch (e) { return null; }
+      function loadFromStorage() { return GMSData.read(STORAGE_KEY);
       }
 
       function loadFromHash() {
@@ -1058,16 +1063,17 @@
       function loadData() {
         const el = document.getElementById('boss-data');
         bossData = el ? JSON.parse(el.textContent) : {};
-        let saved = loadFromHash();
-        const fromHash = !!saved;
-        if (!saved) saved = loadFromStorage();
+        let saved = loadFromStorage();
+        const linked = loadFromHash();
+        if(linked&&GMSData.replace(STORAGE_KEY,linked))saved=linked;
+        if(/[#&]b=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search+'#crystal');
         if (saved?.characters?.length) {
           characters = saved.characters;
           characters.forEach(ch => { if (!ch.hasOwnProperty('maxBoss')) ch.maxBoss = null; });
           selectedCharIndices = (saved.selectedCharIndices || []).filter(i => i >= 0 && i < characters.length);
           if (selectedCharIndices.length === 0) selectedCharIndices = [0];
           characterPowerOrder = (saved.characterPowerOrder || []).filter(i => i >= 0 && i < characters.length);
-          if (fromHash) saveToStorage();
+
         }
         ensurePowerOrder();
         render();
@@ -1089,7 +1095,7 @@
       }
 
       function getMaxPeople(boss, diff) {
-        if (boss === 'First Adversary' || boss === 'Baldrix' || boss === 'Limbo') return 3;
+        if (boss === 'First Adversary' || boss === 'Baldrix' || boss === 'Limbo' || boss === 'Malefic Star' || boss === 'Jupiter') return 3;
         if (boss === 'Lotus' && diff === 'EXTREME') return 2;
         return 6;
       }
@@ -1097,7 +1103,7 @@
       function getDefaultPeople(boss, diff) {
         if (boss === 'Kalos the Guardian' && (diff === 'CHAOS' || diff === 'EXTREME')) return 6;
         if (boss === 'Kaling') return 6;
-        if (boss === 'Limbo' || boss === 'Baldrix' || boss === 'First Adversary') return 3;
+        if (boss === 'Limbo' || boss === 'Baldrix' || boss === 'First Adversary' || boss === 'Malefic Star' || boss === 'Jupiter') return 3;
         return 1;
       }
 
@@ -1144,6 +1150,7 @@
         'Darknell': 'Maple_Guide_-_Guard_Captain_Darknell.png', 'Chosen Seren': 'Maple_Guide_-_Chosen_Seren.png',
         'Kalos the Guardian': 'Maple_Guide_-_Kalos_the_Guardian.png', 'Kaling': 'Maple_Guide_-_Kaling.png',
         'Limbo': 'Maple_Guide_-_Limbo.png', 'Baldrix': 'Maple_Guide_-_Baldrix.png',
+        'Malefic Star': 'Malefic_Star.png', 'Jupiter': 'Jupiter.png',
         'First Adversary': 'Maple_Guide_-_First_Adversary.png', 'Princess No': 'Maple_Guide_-_Princess_No.png',
         'Akechi Mitsuhide': 'Maple_Guide_-_Akechi_Mitsuhide.png', 'Black Mage': 'Maple_Guide_-_Black_Mage.png'
       };
@@ -1674,6 +1681,7 @@
             alert('备份格式无效');
             return false;
           }
+          if(!GMSData.replace(STORAGE_KEY,data))return false;
           characters = data.characters;
           characters.forEach(ch => { if (!ch.hasOwnProperty('maxBoss')) ch.maxBoss = null; });
           selectedCharIndices = (data.selectedCharIndices || []).filter(i => i >= 0 && i < characters.length);
@@ -1692,6 +1700,8 @@
         }
       }
       window.addEventListener('beforeunload', () => saveToStorage());
+      window.addEventListener('pagehide', () => saveToStorage());
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveToStorage(); });
       loadData();
     })();
   </script>
